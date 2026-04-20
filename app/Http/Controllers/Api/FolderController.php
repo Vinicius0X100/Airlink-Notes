@@ -8,6 +8,7 @@ use App\Http\Requests\Folders\FolderUpdateRequest;
 use App\Models\NoteFolder;
 use App\Services\Folders\FolderService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class FolderController extends Controller
 {
@@ -28,7 +29,7 @@ class FolderController extends Controller
     public function store(FolderStoreRequest $request, FolderService $folderService): JsonResponse
     {
         $userId = (int) $request->user()->id;
-        $folder = $folderService->createForUser($userId, (string) $request->validated('name'));
+        $folder = $folderService->createForUser($userId, $request->validated());
 
         return response()->json($folder, 201);
     }
@@ -51,6 +52,19 @@ class FolderController extends Controller
     {
         $userId = (int) request()->user()->id;
         $folderService->deleteForUser($userId, $folder);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function reorder(Request $request, FolderService $folderService): JsonResponse
+    {
+        $userId = (int) $request->user()->id;
+        $data = $request->validate([
+            'ordered_ids' => ['required', 'array', 'min:1'],
+            'ordered_ids.*' => ['integer', 'min:1'],
+        ]);
+
+        $folderService->reorderForUser($userId, (array) $data['ordered_ids']);
 
         return response()->json(['ok' => true]);
     }

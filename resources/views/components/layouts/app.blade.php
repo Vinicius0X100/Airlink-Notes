@@ -68,19 +68,13 @@
             setNavbarUser(user) {
                 const wrap = document.getElementById('nav-user');
                 const nameEl = document.getElementById('nav-user-name');
-                const initialsEl = document.getElementById('nav-user-initials');
-                if (!wrap || !nameEl || !initialsEl) return;
+                if (!wrap || !nameEl) return;
 
                 const nome = user && user.nome ? String(user.nome) : '';
                 const sobrenome = user && user.sobrenome ? String(user.sobrenome) : '';
                 const full = (nome + ' ' + sobrenome).trim() || (user && user.email ? String(user.email) : 'Conta');
 
                 nameEl.textContent = full;
-
-                const base = (nome || full || '').trim();
-                const parts = base.split(/\s+/).filter(Boolean);
-                const initials = (parts[0] ? parts[0][0] : '') + (parts.length > 1 && parts[parts.length - 1] ? parts[parts.length - 1][0] : '');
-                initialsEl.textContent = (initials || 'U').toUpperCase();
 
                 wrap.style.display = 'inline-flex';
                 wrap.dataset.user = JSON.stringify(user || {});
@@ -110,9 +104,9 @@
         input, textarea { width: 100%; box-sizing: border-box; border: 1px solid rgba(0, 0, 0, 0.14); background: rgba(255, 255, 255, 0.95); color: #1d1d1f; padding: 12px 14px; border-radius: 14px; outline: none; transition: border-color 160ms ease, box-shadow 160ms ease; }
         input:focus, textarea:focus { border-color: rgba(0, 113, 227, 0.65); box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12); }
         textarea { min-height: 220px; resize: vertical; }
-        button { border: 1px solid rgba(0, 0, 0, 0.12); background: rgba(255, 255, 255, 0.9); color: #1d1d1f; padding: 12px 14px; border-radius: 14px; cursor: pointer; font-weight: 600; transition: transform 120ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease; }
-        button:hover { box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10); transform: translateY(-1px); }
-        button:active { transform: translateY(0); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.10); }
+        button { border: 1px solid rgba(0, 0, 0, 0.12); background: rgba(255, 255, 255, 0.9); color: #1d1d1f; padding: 12px 14px; border-radius: 14px; cursor: pointer; font-weight: 600; transition: background 160ms ease, border-color 160ms ease; }
+        button:hover { background: rgba(255, 255, 255, 0.96); border-color: rgba(0, 0, 0, 0.16); }
+        button:active { background: rgba(245, 245, 247, 0.95); }
         button.primary { background: #0071e3; border-color: #0071e3; color: #ffffff; }
         button.primary:hover { background: #0a7be6; border-color: #0a7be6; }
         button.danger { background: #b42318; border-color: #b42318; color: #ffffff; }
@@ -126,12 +120,12 @@
         .brand img { height: 20px; width: auto; }
         .topbar-right { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
         .nav-user { position: relative; display: none; align-items: center; gap: 10px; flex: 0 0 auto; min-width: 0; }
-        .nav-user-btn { height: 34px; border-radius: 999px; border: 1px solid rgba(0, 0, 0, 0.10); background: rgba(255, 255, 255, 0.70); padding: 0 10px 0 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; min-width: 0; transition: background 140ms ease, border-color 140ms ease; }
-        .nav-user-btn:hover { background: rgba(255, 255, 255, 0.92); border-color: rgba(0, 0, 0, 0.14); }
-        .nav-avatar { width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.08); border: 1px solid rgba(0, 0, 0, 0.10); font-weight: 750; font-size: 12px; flex: 0 0 auto; }
+        .nav-user-btn { height: 34px; border-radius: 12px; border: 1px solid transparent; background: transparent; padding: 0 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-width: 0; transition: background 140ms ease, border-color 140ms ease; }
+        .nav-user-btn:hover { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.08); }
+        .nav-avatar { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; color: rgba(29, 29, 31, 0.66); font-weight: 750; font-size: 12px; flex: 0 0 auto; }
         .nav-user-name { font-weight: 650; font-size: 13px; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .nav-action { height: 34px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.10); background: rgba(255, 255, 255, 0.70); padding: 0 12px; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 8px; font-weight: 650; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease; }
-        .nav-action:hover { background: rgba(255, 255, 255, 0.92); border-color: rgba(0, 0, 0, 0.14); }
+        .nav-action { height: 34px; border-radius: 12px; border: 1px solid transparent; background: transparent; padding: 0 10px; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 8px; font-weight: 650; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease; }
+        .nav-action:hover { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.08); }
         .nav-action svg { width: 16px; height: 16px; }
         .nav-menu { position: absolute; right: 0; top: calc(100% + 10px); min-width: 220px; max-width: min(320px, calc(100vw - 24px)); background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(0, 0, 0, 0.10); border-radius: 20px; padding: 8px; backdrop-filter: blur(18px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12); z-index: 80; opacity: 0; transform: translateY(-6px) scale(0.98); pointer-events: none; transition: opacity 160ms ease, transform 180ms ease; transform-origin: top right; }
         .nav-menu.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
@@ -157,9 +151,8 @@
         .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .modal-title { font-weight: 780; letter-spacing: -0.02em; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
-        .modal-btn { height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12); background: rgba(255, 255, 255, 0.70); font-weight: 700; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease, transform 120ms ease; }
+        .modal-btn { height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12); background: rgba(255, 255, 255, 0.70); font-weight: 700; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease; }
         .modal-btn:hover { background: rgba(255, 255, 255, 0.92); border-color: rgba(0, 0, 0, 0.16); }
-        .modal-btn:active { transform: translateY(1px); }
         .modal-btn[data-variant="primary"] { background: rgba(0, 113, 227, 0.95); border-color: rgba(0, 113, 227, 0.90); color: #fff; }
         .modal-btn[data-variant="primary"]:hover { background: rgba(0, 113, 227, 1); border-color: rgba(0, 113, 227, 1); }
         .modal-section { border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 18px; padding: 14px; background: rgba(245, 245, 247, 0.55); }
@@ -202,7 +195,12 @@
                 </button>
                 <div id="nav-user" class="nav-user">
                     <button id="nav-user-btn" class="nav-user-btn" type="button" aria-label="Menu do usuário">
-                        <span class="nav-avatar"><span id="nav-user-initials">U</span></span>
+                        <span class="nav-avatar" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path>
+                            </svg>
+                        </span>
                         <span id="nav-user-name" class="nav-user-name">Conta</span>
                     </button>
                     <div id="nav-user-menu" class="nav-menu" aria-hidden="true">

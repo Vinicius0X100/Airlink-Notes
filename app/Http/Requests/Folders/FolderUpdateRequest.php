@@ -25,6 +25,8 @@ class FolderUpdateRequest extends FormRequest
         return [
             'name' => ['sometimes', 'string', 'max:120'],
             'color' => ['sometimes', 'nullable', 'string', 'max:16', 'regex:/^#([0-9a-fA-F]{6})$/'],
+            'icon_emoji' => ['sometimes', 'nullable', 'string', 'max:16'],
+            'sort_order' => ['sometimes', 'integer'],
         ];
     }
 }

@@ -76,9 +76,8 @@
         .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .modal-title { font-weight: 780; letter-spacing: -0.02em; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
-        .modal-btn { height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12); background: rgba(255, 255, 255, 0.70); font-weight: 700; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease, transform 120ms ease; }
+        .modal-btn { height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12); background: rgba(255, 255, 255, 0.70); font-weight: 700; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease; }
         .modal-btn:hover { background: rgba(255, 255, 255, 0.92); border-color: rgba(0, 0, 0, 0.16); }
-        .modal-btn:active { transform: translateY(1px); }
         .modal-btn[data-variant="primary"] { background: rgba(0, 113, 227, 0.95); border-color: rgba(0, 113, 227, 0.90); color: #fff; }
         .modal-btn[data-variant="primary"]:hover { background: rgba(0, 113, 227, 1); border-color: rgba(0, 113, 227, 1); }
         .modal-btn[data-variant="danger"] { color: #b42318; border-color: rgba(180, 35, 24, 0.22); }
@@ -86,6 +85,11 @@
         .modal input[type="color"] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; padding: 0; border-radius: 14px; border: 1px solid rgba(0,0,0,0.14); background: rgba(255,255,255,0.95); overflow: hidden; }
         .modal input[type="color"]::-webkit-color-swatch-wrapper { padding: 6px; }
         .modal input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 10px; }
+        .pin-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+        .pin-box { height: 46px; text-align: center; font-size: 20px; font-weight: 800; letter-spacing: 0.02em; border-radius: 12px; }
+        .emoji-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+        .emoji-btn { border: 1px solid rgba(0, 0, 0, 0.10); background: rgba(255, 255, 255, 0.74); border-radius: 12px; height: 36px; font-size: 18px; }
+        .emoji-btn[aria-selected="true"] { border-color: rgba(0, 113, 227, 0.38); background: rgba(0, 113, 227, 0.10); }
         .tag-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; max-height: 260px; overflow: auto; padding: 6px; border: 1px solid rgba(0, 0, 0, 0.10); border-radius: 18px; background: rgba(245, 245, 247, 0.55); }
         .tag-option { width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; border: 1px solid transparent; background: rgba(255, 255, 255, 0.75); padding: 10px 10px; border-radius: 14px; font-weight: 700; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease; }
         .tag-option:hover { background: rgba(255, 255, 255, 0.92); border-color: rgba(0, 0, 0, 0.08); }
@@ -284,18 +288,18 @@
             <div id="vault-mode-create">
                 <div class="muted">Crie um PIN de 6 dígitos para acessar a pasta Oculta.</div>
                 <div style="height:12px;"></div>
-                <label for="vault-pin">PIN</label>
-                <input id="vault-pin" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
+                <label>PIN</label>
+                <div class="pin-grid" id="vault-create-pin-grid"></div>
                 <div style="height:10px;"></div>
-                <label for="vault-pin-confirm">Confirmar PIN</label>
-                <input id="vault-pin-confirm" type="password" inputmode="numeric" maxlength="6">
+                <label>Confirmar PIN</label>
+                <div class="pin-grid" id="vault-create-confirm-grid"></div>
             </div>
 
             <div id="vault-mode-enter" style="display:none;">
                 <div class="muted">Digite seu PIN de 6 dígitos para continuar.</div>
                 <div style="height:12px;"></div>
-                <label for="vault-pin-enter">PIN</label>
-                <input id="vault-pin-enter" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
+                <label>PIN</label>
+                <div class="pin-grid" id="vault-enter-grid"></div>
             </div>
 
             <div class="error" id="vault-modal-error" style="display:none; margin-top:10px;"></div>
@@ -319,10 +323,32 @@
             <div style="height:12px;"></div>
             <label for="folder-color-input">Cor</label>
             <input id="folder-color-input" type="color" value="#0071E3">
+            <div style="height:10px;"></div>
+            <label>Emoji da pasta</label>
+            <div id="folder-emoji-grid" class="emoji-grid"></div>
             <div class="error" id="folder-color-error" style="display:none; margin-top:8px;"></div>
             <div class="modal-actions">
                 <button id="folder-color-cancel" class="modal-btn" type="button">Cancelar</button>
                 <button id="folder-color-save" class="modal-btn" data-variant="primary" type="button">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-note-modal" class="modal-overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-note-title">
+            <div class="modal-head">
+                <div id="delete-note-title" class="modal-title">Excluir nota</div>
+                <button id="delete-note-close" class="icon-btn" type="button" aria-label="Fechar">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path><path d="M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div style="height:10px;"></div>
+            <div class="muted">Essa ação remove a nota permanentemente. Deseja continuar?</div>
+            <div class="modal-actions">
+                <button id="delete-note-cancel" class="modal-btn" type="button">Cancelar</button>
+                <button id="delete-note-confirm" class="modal-btn" data-variant="danger" type="button">Excluir</button>
             </div>
         </div>
     </div>
@@ -423,9 +449,9 @@
         const vaultModalSaveEl = document.getElementById('vault-modal-save');
         const vaultModeCreateEl = document.getElementById('vault-mode-create');
         const vaultModeEnterEl = document.getElementById('vault-mode-enter');
-        const vaultPinEl = document.getElementById('vault-pin');
-        const vaultPinConfirmEl = document.getElementById('vault-pin-confirm');
-        const vaultPinEnterEl = document.getElementById('vault-pin-enter');
+        const vaultCreatePinGridEl = document.getElementById('vault-create-pin-grid');
+        const vaultCreateConfirmGridEl = document.getElementById('vault-create-confirm-grid');
+        const vaultEnterGridEl = document.getElementById('vault-enter-grid');
         const vaultModalErrorEl = document.getElementById('vault-modal-error');
 
         const folderColorModalEl = document.getElementById('folder-color-modal');
@@ -433,6 +459,7 @@
         const folderColorCancelEl = document.getElementById('folder-color-cancel');
         const folderColorSaveEl = document.getElementById('folder-color-save');
         const folderColorInputEl = document.getElementById('folder-color-input');
+        const folderEmojiGridEl = document.getElementById('folder-emoji-grid');
         const folderColorErrorEl = document.getElementById('folder-color-error');
 
         const tagModalEl = document.getElementById('tag-modal');
@@ -449,6 +476,11 @@
         const onboardingNextEl = document.getElementById('onboarding-next');
         const onboardingDoneEl = document.getElementById('onboarding-done');
 
+        const deleteNoteModalEl = document.getElementById('delete-note-modal');
+        const deleteNoteCloseEl = document.getElementById('delete-note-close');
+        const deleteNoteCancelEl = document.getElementById('delete-note-cancel');
+        const deleteNoteConfirmEl = document.getElementById('delete-note-confirm');
+
         const ctxEl = document.getElementById('ctx');
 
         const toolbarEl = document.querySelector('.toolbar');
@@ -457,6 +489,7 @@
         let folders = [];
         const folderNameById = new Map();
         const folderColorById = new Map();
+        const folderIconById = new Map();
         let notes = [];
         const notesById = new Map();
         let selectedFolderId = null;
@@ -471,13 +504,15 @@
         let draggingNoteId = null;
         let orderDirty = false;
         let reorderRaf = 0;
+        let draggingFolderId = null;
+        let folderOrderDirty = false;
 
         let autosaveTimer = null;
         let createTimer = null;
         let lastSavedVersion = null;
         let creatingNotePromise = null;
         const CREATE_NOTE_AFTER_MS = 200;
-        const AUTOSAVE_AFTER_IDLE_MS = 3000;
+        const AUTOSAVE_AFTER_IDLE_MS = 2000;
         let saveInFlight = false;
         let pendingSave = false;
         let lastInputAt = 0;
@@ -496,6 +531,12 @@
         const VAULT_PIN_TTL_MS = 10 * 60 * 1000;
         let vaultModalMode = 'enter';
         let vaultModalResolve = null;
+
+        let deleteNoteResolve = null;
+        let deletingNoteId = null;
+
+        const FOLDER_EMOJIS = ['📁', '📂', '🗂️', '📌', '⭐', '🔥', '🧠', '💼', '🏢', '🛠️', '📚', '🧾', '🧪', '🎯', '🚀', '💡'];
+        let selectedFolderEmoji = null;
 
         function setError(msg) {
             errEl.textContent = msg || '';
@@ -537,6 +578,79 @@
             setTimeout(() => noteListEl.classList.remove('anim'), 180);
         }
 
+        function makePinInputs(container) {
+            const inputs = [];
+            container.innerHTML = '';
+            for (let i = 0; i < 6; i += 1) {
+                const inp = document.createElement('input');
+                inp.type = 'password';
+                inp.inputMode = 'numeric';
+                inp.maxLength = 1;
+                inp.className = 'pin-box';
+                inp.autocomplete = 'one-time-code';
+                inp.addEventListener('input', () => {
+                    inp.value = (inp.value || '').replace(/\D/g, '').slice(0, 1);
+                    if (inp.value && i < 5) inputs[i + 1].focus();
+                });
+                inp.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i - 1].focus();
+                });
+                inputs.push(inp);
+                container.appendChild(inp);
+            }
+            return inputs;
+        }
+
+        const vaultCreatePinInputs = makePinInputs(vaultCreatePinGridEl);
+        const vaultCreateConfirmInputs = makePinInputs(vaultCreateConfirmGridEl);
+        const vaultEnterInputs = makePinInputs(vaultEnterGridEl);
+
+        function pinValue(inputs) {
+            return inputs.map((i) => (i.value || '').replace(/\D/g, '')).join('');
+        }
+
+        function clearPinInputs(inputs) {
+            for (const i of inputs) i.value = '';
+        }
+
+        function renderFolderEmojiOptions() {
+            folderEmojiGridEl.innerHTML = '';
+            const make = (emoji, label) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'emoji-btn';
+                btn.textContent = emoji;
+                btn.setAttribute('aria-label', label);
+                btn.setAttribute('aria-selected', selectedFolderEmoji === emoji ? 'true' : 'false');
+                btn.addEventListener('click', () => {
+                    selectedFolderEmoji = emoji;
+                    renderFolderEmojiOptions();
+                });
+                return btn;
+            };
+            folderEmojiGridEl.appendChild(make('', 'Sem emoji'));
+            for (const emoji of FOLDER_EMOJIS) {
+                folderEmojiGridEl.appendChild(make(emoji, 'Emoji ' + emoji));
+            }
+        }
+
+        function openDeleteNoteModal(noteId) {
+            deletingNoteId = noteId;
+            deleteNoteModalEl.style.display = 'flex';
+            deleteNoteModalEl.setAttribute('aria-hidden', 'false');
+            return new Promise((resolve) => {
+                deleteNoteResolve = resolve;
+            });
+        }
+
+        function closeDeleteNoteModal(ok = false) {
+            deleteNoteModalEl.style.display = 'none';
+            deleteNoteModalEl.setAttribute('aria-hidden', 'true');
+            const resolve = deleteNoteResolve;
+            deleteNoteResolve = null;
+            if (resolve) resolve(ok);
+        }
+
         function setDropTarget(el) {
             if (dropTargetEl && dropTargetEl !== el) {
                 dropTargetEl.classList.remove('drop-target');
@@ -564,6 +678,8 @@
         function openFolderColorModal(folder) {
             folderColorFolderId = folder ? folder.id : null;
             folderColorInputEl.value = (folder && folder.color) ? String(folder.color) : '#0071E3';
+            selectedFolderEmoji = (folder && folder.icon_emoji) ? String(folder.icon_emoji) : '';
+            renderFolderEmojiOptions();
             setFolderColorError('');
             folderColorModalEl.style.display = 'flex';
             folderColorModalEl.setAttribute('aria-hidden', 'false');
@@ -587,11 +703,12 @@
             }
             folderColorSaveEl.disabled = true;
             try {
-                const updated = await window.Airlink.api('/folders/' + folderId, { method: 'PUT', body: { color } });
+                const updated = await window.Airlink.api('/folders/' + folderId, { method: 'PUT', body: { color, icon_emoji: selectedFolderEmoji || null } });
                 const idx = folders.findIndex(x => x.id === folderId);
                 if (idx >= 0) folders[idx] = updated;
                 folderNameById.set(folderId, updated.name || '');
                 folderColorById.set(folderId, updated.color || null);
+                folderIconById.set(folderId, updated.icon_emoji || null);
                 renderFolders();
                 renderNotes();
                 closeFolderColorModal();
@@ -744,16 +861,16 @@
             vaultModeEnterEl.style.display = mode === 'enter' ? 'block' : 'none';
             vaultModalTitleEl.textContent = mode === 'create' ? 'Criar PIN' : 'Digite o PIN';
 
-            vaultPinEl.value = '';
-            vaultPinConfirmEl.value = '';
-            vaultPinEnterEl.value = '';
+            clearPinInputs(vaultCreatePinInputs);
+            clearPinInputs(vaultCreateConfirmInputs);
+            clearPinInputs(vaultEnterInputs);
 
             vaultModalEl.style.display = 'flex';
             vaultModalEl.setAttribute('aria-hidden', 'false');
 
             setTimeout(() => {
-                if (mode === 'create') vaultPinEl.focus();
-                else vaultPinEnterEl.focus();
+                if (mode === 'create') vaultCreatePinInputs[0].focus();
+                else vaultEnterInputs[0].focus();
             }, 0);
 
             return new Promise((resolve) => {
@@ -765,16 +882,16 @@
             vaultModalEl.style.display = 'none';
             vaultModalEl.setAttribute('aria-hidden', 'true');
             setVaultModalError('');
-            vaultPinEl.value = '';
-            vaultPinConfirmEl.value = '';
-            vaultPinEnterEl.value = '';
+            clearPinInputs(vaultCreatePinInputs);
+            clearPinInputs(vaultCreateConfirmInputs);
+            clearPinInputs(vaultEnterInputs);
             const resolve = vaultModalResolve;
             vaultModalResolve = null;
             if (resolve) resolve(result);
         }
 
-        async function requireVaultPin({ allowCreate } = { allowCreate: true }) {
-            const cached = getVaultPin();
+        async function requireVaultPin({ allowCreate, forcePrompt = false } = { allowCreate: true, forcePrompt: false }) {
+            const cached = forcePrompt ? null : getVaultPin();
             if (cached) return cached;
 
             if (vaultHasPin === null) {
@@ -804,8 +921,8 @@
 
             try {
                 if (vaultModalMode === 'create') {
-                    const pin = (vaultPinEl.value || '').replace(/\D/g, '');
-                    const confirmPin = (vaultPinConfirmEl.value || '').replace(/\D/g, '');
+                    const pin = pinValue(vaultCreatePinInputs);
+                    const confirmPin = pinValue(vaultCreateConfirmInputs);
                     if (pin.length !== 6) {
                         setVaultModalError('Informe 6 dígitos.');
                         return;
@@ -823,7 +940,7 @@
                     return;
                 }
 
-                const pin = (vaultPinEnterEl.value || '').replace(/\D/g, '');
+                const pin = pinValue(vaultEnterInputs);
                 if (pin.length !== 6) {
                     setVaultModalError('Informe 6 dígitos.');
                     return;
@@ -942,6 +1059,29 @@
             }
         }
 
+        function reorderFoldersLocal(fromId, toId) {
+            if (fromId === toId) return;
+            const fromIdx = folders.findIndex(f => f.id === fromId);
+            const toIdx = folders.findIndex(f => f.id === toId);
+            if (fromIdx < 0 || toIdx < 0) return;
+            const [moved] = folders.splice(fromIdx, 1);
+            folders.splice(toIdx, 0, moved);
+            folderOrderDirty = true;
+        }
+
+        async function persistFolderOrderIfDirty() {
+            if (!folderOrderDirty) return;
+            folderOrderDirty = false;
+            try {
+                await window.Airlink.api('/folders/reorder', {
+                    method: 'POST',
+                    body: { ordered_ids: folders.map(f => f.id) },
+                });
+            } catch (e) {
+                setError(e.message || 'Falha ao salvar ordem das pastas.');
+            }
+        }
+
         function renderFolders() {
             folderListEl.innerHTML = '';
 
@@ -977,12 +1117,14 @@
                 btn.className = 'list-item';
                 btn.setAttribute('aria-selected', f.id === selectedFolderId ? 'true' : 'false');
                 const colorStyle = f.color ? `style="color:${String(f.color)}"` : '';
+                const titleStyle = f.color ? `style="color:${String(f.color)}"` : '';
+                const folderLeading = f.icon_emoji
+                    ? `<span class="icon" aria-hidden="true">${escapeHtml(String(f.icon_emoji))}</span>`
+                    : `<svg class="icon" ${colorStyle} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"></path></svg>`;
                 btn.innerHTML = `
-                    <svg class="icon" ${colorStyle} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"></path>
-                    </svg>
+                    ${folderLeading}
                     <div class="list-item-col">
-                        <div class="list-item-title">${escapeHtml(f.name)}</div>
+                        <div class="list-item-title" ${titleStyle}>${escapeHtml(f.name)}</div>
                     </div>
                     <div class="list-item-end">
                         <span class="more" data-folder-more="${f.id}" aria-label="Opções da pasta">
@@ -992,6 +1134,7 @@
                         </span>
                     </div>
                 `;
+                btn.draggable = true;
                 btn.addEventListener('click', (e) => {
                     const more = e.target && e.target.closest ? e.target.closest('[data-folder-more]') : null;
                     if (more) {
@@ -1004,14 +1147,39 @@
                 });
                 btn.addEventListener('dragenter', (e) => { e.preventDefault(); setDropTarget(btn); });
                 btn.addEventListener('dragover', (e) => { e.preventDefault(); setDropTarget(btn); });
+                btn.addEventListener('dragenter', (e) => {
+                    const folderId = e.dataTransfer ? e.dataTransfer.getData('text/folder-id') : '';
+                    if (folderId) {
+                        reorderFoldersLocal(parseInt(folderId, 10), f.id);
+                        renderFolders();
+                    }
+                });
                 btn.addEventListener('dragleave', (e) => {
                     if (!e.relatedTarget || !btn.contains(e.relatedTarget)) clearDropTarget(btn);
                 });
                 btn.addEventListener('drop', (e) => {
                     e.preventDefault();
                     clearDropTarget(btn);
+                    const folderId = e.dataTransfer ? e.dataTransfer.getData('text/folder-id') : '';
+                    if (folderId) {
+                        reorderFoldersLocal(parseInt(folderId, 10), f.id);
+                        renderFolders();
+                        persistFolderOrderIfDirty();
+                        return;
+                    }
                     const noteId = e.dataTransfer ? e.dataTransfer.getData('text/note-id') : '';
                     if (noteId) moveNoteToFolder(noteId, f.id);
+                });
+                btn.addEventListener('dragstart', (e) => {
+                    if (!e.dataTransfer) return;
+                    e.dataTransfer.setData('text/folder-id', String(f.id));
+                    e.dataTransfer.effectAllowed = 'move';
+                    draggingFolderId = f.id;
+                    folderOrderDirty = false;
+                });
+                btn.addEventListener('dragend', async () => {
+                    draggingFolderId = null;
+                    await persistFolderOrderIfDirty();
                 });
                 folderListEl.appendChild(btn);
             }
@@ -1290,10 +1458,12 @@
             if (!Array.isArray(folders)) folders = [];
             folderNameById.clear();
             folderColorById.clear();
+            folderIconById.clear();
             for (const f of folders) {
                 if (f && typeof f.id !== 'undefined') {
                     folderNameById.set(f.id, f.name || '');
                     folderColorById.set(f.id, f.color || null);
+                    folderIconById.set(f.id, f.icon_emoji || null);
                 }
             }
             renderFolders();
@@ -1360,7 +1530,7 @@
 
         async function openHidden() {
             closeCtx();
-            const pin = await requireVaultPin({ allowCreate: true });
+            const pin = await requireVaultPin({ allowCreate: true, forcePrompt: true });
             if (!pin) return;
 
             try {
@@ -1414,7 +1584,7 @@
                     },
                 },
                 {
-                    label: 'Cor',
+                    label: 'Cor e emoji',
                     icon: `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v10"></path><path d="M8 7h8"></path><path d="M5 21h14"></path><path d="M7 13h10"></path></svg>`,
                     onClick: async () => {
                         closeCtx();
@@ -1460,7 +1630,7 @@
         }
 
         async function deleteNote(note) {
-            const ok = confirm('Excluir esta nota?');
+            const ok = await openDeleteNoteModal(note.id);
             if (!ok) return;
             await window.Airlink.api('/notes/' + note.id, { method: 'DELETE' });
             notes = notes.filter(x => x.id !== note.id);
@@ -1569,7 +1739,7 @@
             const n = getSelectedNote();
             if (!n) return;
             setError('');
-            const ok = confirm('Excluir esta nota?');
+            const ok = await openDeleteNoteModal(n.id);
             if (!ok) return;
             btnDeleteNote.disabled = true;
             try {
@@ -1765,6 +1935,7 @@
             if (vaultModalEl.getAttribute('aria-hidden') === 'false') closeVaultModal(null);
             if (folderColorModalEl.getAttribute('aria-hidden') === 'false') closeFolderColorModal();
             if (tagModalEl.getAttribute('aria-hidden') === 'false') closeTagModal();
+            if (deleteNoteModalEl.getAttribute('aria-hidden') === 'false') closeDeleteNoteModal(false);
             closeCtx();
         });
 
@@ -1774,18 +1945,12 @@
         vaultModalCloseEl.addEventListener('click', () => closeVaultModal(null));
         vaultModalCancelEl.addEventListener('click', () => closeVaultModal(null));
         vaultModalSaveEl.addEventListener('click', submitVaultModal);
-        vaultPinEl.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') submitVaultModal();
-            if (e.key === 'Escape') closeVaultModal(null);
-        });
-        vaultPinConfirmEl.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') submitVaultModal();
-            if (e.key === 'Escape') closeVaultModal(null);
-        });
-        vaultPinEnterEl.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') submitVaultModal();
-            if (e.key === 'Escape') closeVaultModal(null);
-        });
+        for (const inp of [...vaultCreatePinInputs, ...vaultCreateConfirmInputs, ...vaultEnterInputs]) {
+            inp.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') submitVaultModal();
+                if (e.key === 'Escape') closeVaultModal(null);
+            });
+        }
 
         folderColorModalEl.addEventListener('click', (e) => {
             if (e.target === folderColorModalEl) closeFolderColorModal();
@@ -1800,6 +1965,13 @@
         tagModalCloseEl.addEventListener('click', closeTagModal);
         tagModalCancelEl.addEventListener('click', closeTagModal);
         tagModalSaveEl.addEventListener('click', submitTagModal);
+
+        deleteNoteModalEl.addEventListener('click', (e) => {
+            if (e.target === deleteNoteModalEl) closeDeleteNoteModal(false);
+        });
+        deleteNoteCloseEl.addEventListener('click', () => closeDeleteNoteModal(false));
+        deleteNoteCancelEl.addEventListener('click', () => closeDeleteNoteModal(false));
+        deleteNoteConfirmEl.addEventListener('click', () => closeDeleteNoteModal(true));
 
         onboardingCloseEl.addEventListener('click', () => {});
         onboardingNextEl.addEventListener('click', () => {

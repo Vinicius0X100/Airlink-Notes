@@ -21,6 +21,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/folders', [FolderController::class, 'index']);
     Route::post('/folders', [FolderController::class, 'store']);
+    Route::post('/folders/reorder', [FolderController::class, 'reorder']);
     Route::put('/folders/{folder}', [FolderController::class, 'update']);
     Route::delete('/folders/{folder}', [FolderController::class, 'destroy']);
 

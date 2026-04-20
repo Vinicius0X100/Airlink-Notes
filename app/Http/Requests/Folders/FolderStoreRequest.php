@@ -24,6 +24,8 @@ class FolderStoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:120'],
+            'icon_emoji' => ['sometimes', 'nullable', 'string', 'max:16'],
+            'color' => ['sometimes', 'nullable', 'string', 'max:16', 'regex:/^#([0-9a-fA-F]{6})$/'],
         ];
     }
 }

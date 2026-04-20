@@ -5,6 +5,7 @@ namespace App\Services\Folders;
 use App\Models\Note;
 use App\Models\NoteFolder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class FolderService
 {
@@ -17,14 +18,17 @@ class FolderService
             ->get();
     }
 
-    public function createForUser(int $userId, string $name): NoteFolder
+    public function createForUser(int $userId, array $data): NoteFolder
     {
-        $name = trim($name);
+        $name = trim((string) $data['name']);
+        $minSort = (int) (NoteFolder::query()->where('user_id', $userId)->min('sort_order') ?? 0);
 
         return NoteFolder::query()->create([
             'user_id' => $userId,
             'name' => $name,
-            'sort_order' => 0,
+            'icon_emoji' => array_key_exists('icon_emoji', $data) ? (string) ($data['icon_emoji'] ?? '') : null,
+            'color' => array_key_exists('color', $data) && $data['color'] ? strtoupper((string) $data['color']) : null,
+            'sort_order' => $minSort - 1,
         ]);
     }
 
@@ -42,6 +46,14 @@ class FolderService
 
         if (array_key_exists('color', $data)) {
             $update['color'] = $data['color'] ? strtoupper((string) $data['color']) : null;
+        }
+
+        if (array_key_exists('icon_emoji', $data)) {
+            $update['icon_emoji'] = $data['icon_emoji'] ? trim((string) $data['icon_emoji']) : null;
+        }
+
+        if (array_key_exists('sort_order', $data)) {
+            $update['sort_order'] = (int) $data['sort_order'];
         }
 
         if ($update !== []) {
@@ -63,5 +75,31 @@ class FolderService
             ->update(['folder_id' => null]);
 
         $folder->delete();
+    }
+
+    public function reorderForUser(int $userId, array $orderedIds): void
+    {
+        $orderedIds = array_values(array_unique(array_map('intval', $orderedIds)));
+        if ($orderedIds === []) {
+            return;
+        }
+
+        $count = NoteFolder::query()
+            ->where('user_id', $userId)
+            ->whereIn('id', $orderedIds)
+            ->count();
+
+        if ($count !== count($orderedIds)) {
+            abort(422, 'Pastas inválidas.');
+        }
+
+        DB::connection('airlink')->transaction(function () use ($userId, $orderedIds) {
+            foreach ($orderedIds as $i => $id) {
+                NoteFolder::query()
+                    ->where('user_id', $userId)
+                    ->whereKey($id)
+                    ->update(['sort_order' => $i]);
+            }
+        });
     }
 }
