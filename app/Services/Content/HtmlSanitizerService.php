@@ -41,7 +41,9 @@ class HtmlSanitizerService
 
         $dom = new DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
-        $dom->loadHTML('<div>'.$html.'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $wrapped = '<div>'.$html.'</div>';
+        $wrapped = mb_convert_encoding($wrapped, 'HTML-ENTITIES', 'UTF-8');
+        $dom->loadHTML($wrapped, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
 
         $root = $dom->documentElement;
