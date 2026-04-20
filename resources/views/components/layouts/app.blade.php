@@ -147,14 +147,37 @@
         .modal input[type="color"]::-webkit-color-swatch-wrapper { padding: 6px; }
         .modal input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 10px; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.28); display: none; align-items: center; justify-content: center; z-index: 90; }
-        .modal { width: 520px; max-width: calc(100vw - 24px); background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(0, 0, 0, 0.10); border-radius: 22px; padding: 16px 16px; backdrop-filter: blur(18px); }
-        .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .modal { width: 560px; max-width: calc(100vw - 24px); background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(0, 0, 0, 0.10); border-radius: 22px; padding: 0; backdrop-filter: blur(18px); overflow: hidden; }
+        .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
         .modal-title { font-weight: 780; letter-spacing: -0.02em; }
+        .modal-body { padding: 14px 16px 16px; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
         .modal-btn { height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12); background: rgba(255, 255, 255, 0.70); font-weight: 700; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease; }
         .modal-btn:hover { background: rgba(255, 255, 255, 0.92); border-color: rgba(0, 0, 0, 0.16); }
         .modal-btn[data-variant="primary"] { background: rgba(0, 113, 227, 0.95); border-color: rgba(0, 113, 227, 0.90); color: #fff; }
         .modal-btn[data-variant="primary"]:hover { background: rgba(0, 113, 227, 1); border-color: rgba(0, 113, 227, 1); }
+        .modal label { display: block; font-size: 12px; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(29, 29, 31, 0.55); margin-bottom: 8px; }
+        .modal input[type="text"], .modal input[type="password"] { width: 100%; box-sizing: border-box; border: 1px solid rgba(0,0,0,0.14); background: rgba(255,255,255,0.92); padding: 12px 14px; border-radius: 14px; outline: none; font-size: 14px; }
+        .modal input[type="text"]:focus, .modal input[type="password"]:focus { border-color: rgba(0, 113, 227, 0.40); }
+        .settings-layout { display: grid; grid-template-columns: 190px 1fr; min-height: 360px; }
+        .settings-nav { background: rgba(245, 245, 247, 0.70); border-right: 1px solid rgba(0, 0, 0, 0.08); padding: 10px; }
+        .settings-tab { width: 100%; border: 1px solid transparent; background: transparent; text-align: left; padding: 10px 10px; border-radius: 14px; font-weight: 700; letter-spacing: -0.01em; color: rgba(29, 29, 31, 0.78); }
+        .settings-tab:hover { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.06); }
+        .settings-tab[data-active="true"] { background: rgba(0, 0, 0, 0.06); border-color: rgba(0, 0, 0, 0.08); }
+        .settings-content { padding: 14px 14px; }
+        .settings-panel { display: none; }
+        .settings-panel[data-active="true"] { display: block; }
+        .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .setting-row:last-child { border-bottom: 0; }
+        .setting-title { font-weight: 750; letter-spacing: -0.02em; }
+        .setting-sub { margin-top: 4px; color: rgba(29,29,31,0.62); font-size: 12px; line-height: 1.4; }
+        .toggle { width: 44px; height: 28px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.14); background: rgba(0,0,0,0.06); position: relative; cursor: pointer; flex: 0 0 auto; }
+        .toggle:after { content: ""; width: 22px; height: 22px; border-radius: 999px; background: #fff; border: 1px solid rgba(0,0,0,0.10); position: absolute; top: 2px; left: 2px; transition: transform 160ms ease; }
+        .toggle[data-on="true"] { background: rgba(0, 113, 227, 0.95); border-color: rgba(0, 113, 227, 0.60); }
+        .toggle[data-on="true"]:after { transform: translateX(16px); }
+        .pin-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+        .pin-box { height: 46px; text-align: center; font-size: 20px; font-weight: 800; border-radius: 12px; }
+        @media (max-width: 720px) { .settings-layout { grid-template-columns: 1fr; } .settings-nav { border-right: 0; border-bottom: 1px solid rgba(0,0,0,0.08); } }
         .modal-section { border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 18px; padding: 14px; background: rgba(245, 245, 247, 0.55); }
         .modal-section-title { font-weight: 750; letter-spacing: -0.02em; }
         .pill { font-size: 12px; padding: 7px 10px; border-radius: 999px; border: 1px solid rgba(0, 0, 0, 0.10); color: rgba(29, 29, 31, 0.72); background: rgba(255, 255, 255, 0.65); }
@@ -245,22 +268,70 @@
                 <div id="settings-modal-title" class="modal-title">Configurações</div>
                 <button id="settings-modal-close" class="modal-btn" type="button">Fechar</button>
             </div>
-            <div style="height:12px;"></div>
-            <div class="modal-section">
-                <div class="modal-section-title">Pasta Oculta</div>
-                <div class="muted" style="margin-top:6px;">Troque o PIN de 6 dígitos informando sua senha.</div>
-                <div style="height:12px;"></div>
-                <label for="settings-password">Senha</label>
-                <input id="settings-password" type="password" autocomplete="current-password">
-                <div style="height:10px;"></div>
-                <label for="settings-pin">Novo PIN (6 dígitos)</label>
-                <input id="settings-pin" type="password" inputmode="numeric" maxlength="6">
-                <div style="height:10px;"></div>
-                <label for="settings-pin-confirm">Confirmar PIN</label>
-                <input id="settings-pin-confirm" type="password" inputmode="numeric" maxlength="6">
-                <div class="error" id="settings-error" style="display:none; margin-top:10px;"></div>
-                <div class="modal-actions">
-                    <button id="settings-save" class="modal-btn" data-variant="primary" type="button">Salvar</button>
+            <div class="settings-layout">
+                <div class="settings-nav" aria-label="Seções">
+                    <button class="settings-tab" type="button" data-settings-tab="general" data-active="true">Geral</button>
+                    <button class="settings-tab" type="button" data-settings-tab="security" data-active="false">Segurança</button>
+                    <button class="settings-tab" type="button" data-settings-tab="account" data-active="false">Conta</button>
+                    <button class="settings-tab" type="button" data-settings-tab="about" data-active="false">Sobre</button>
+                </div>
+                <div class="settings-content">
+                    <div id="settings-panel-general" class="settings-panel" data-active="true">
+                        <div class="setting-row">
+                            <div style="min-width:0;">
+                                <div class="setting-title">Reduzir animações</div>
+                                <div class="setting-sub">Deixa a interface mais estática e leve.</div>
+                            </div>
+                            <button id="pref-reduce-motion" class="toggle" type="button" data-on="false" aria-label="Reduzir animações"></button>
+                        </div>
+                        <div class="setting-row">
+                            <div style="min-width:0;">
+                                <div class="setting-title">Lista compacta</div>
+                                <div class="setting-sub">Mostra mais itens na lateral com menos espaçamento.</div>
+                            </div>
+                            <button id="pref-compact-list" class="toggle" type="button" data-on="false" aria-label="Lista compacta"></button>
+                        </div>
+                    </div>
+
+                    <div id="settings-panel-security" class="settings-panel" data-active="false">
+                        <div class="modal-section">
+                            <div class="modal-section-title">Pasta Oculta (PIN)</div>
+                            <div class="muted" style="margin-top:6px;">Altere seu PIN de 6 dígitos usando sua senha da conta.</div>
+                            <div style="height:12px;"></div>
+                            <button id="settings-pin-show" class="modal-btn" type="button">Alterar PIN</button>
+                            <div id="settings-pin-form" style="display:none; margin-top:12px;">
+                                <label for="settings-password">Senha</label>
+                                <input id="settings-password" type="password" autocomplete="current-password">
+                                <div style="height:10px;"></div>
+                                <label>Novo PIN</label>
+                                <div class="pin-grid" id="settings-pin-grid"></div>
+                                <div style="height:10px;"></div>
+                                <label>Confirmar PIN</label>
+                                <div class="pin-grid" id="settings-pin-confirm-grid"></div>
+                                <div class="error" id="settings-error" style="display:none; margin-top:10px;"></div>
+                                <div class="modal-actions">
+                                    <button id="settings-save" class="modal-btn" data-variant="primary" type="button">Salvar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="settings-panel-account" class="settings-panel" data-active="false">
+                        <div class="modal-section">
+                            <div class="modal-section-title">Sacratech iD</div>
+                            <div class="muted" style="margin-top:6px;">Gerencie sua conta Sacratech iD, segurança e acesso.</div>
+                            <div class="modal-actions">
+                                <button id="settings-open-sacratech" class="modal-btn" type="button">Abrir Sacratech iD</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="settings-panel-about" class="settings-panel" data-active="false">
+                        <div class="modal-section">
+                            <div class="modal-section-title">Airlink Notes</div>
+                            <div class="muted" style="margin-top:6px;">Bloco de notas pessoal, organizado e seguro.</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -272,16 +343,17 @@
                 <div id="tag-create-title" class="modal-title">Nova tag</div>
                 <button id="tag-create-close" class="modal-btn" type="button">Fechar</button>
             </div>
-            <div style="height:12px;"></div>
-            <div class="modal-section">
-                <label for="tag-create-name">Título</label>
-                <input id="tag-create-name" type="text" maxlength="40" autocomplete="off">
-                <div style="height:10px;"></div>
-                <label for="tag-create-color">Cor</label>
-                <input id="tag-create-color" type="color" value="#0071E3">
-                <div class="error" id="tag-create-error" style="display:none; margin-top:10px;"></div>
-                <div class="modal-actions">
-                    <button id="tag-create-save" class="modal-btn" data-variant="primary" type="button">Criar</button>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <label for="tag-create-name">Título</label>
+                    <input id="tag-create-name" type="text" maxlength="40" autocomplete="off">
+                    <div style="height:10px;"></div>
+                    <label for="tag-create-color">Cor</label>
+                    <input id="tag-create-color" type="color" value="#0071E3">
+                    <div class="error" id="tag-create-error" style="display:none; margin-top:10px;"></div>
+                    <div class="modal-actions">
+                        <button id="tag-create-save" class="modal-btn" data-variant="primary" type="button">Criar</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -301,9 +373,19 @@
             const settingsClose = document.getElementById('settings-modal-close');
             const settingsSave = document.getElementById('settings-save');
             const settingsPassword = document.getElementById('settings-password');
-            const settingsPin = document.getElementById('settings-pin');
-            const settingsPinConfirm = document.getElementById('settings-pin-confirm');
             const settingsError = document.getElementById('settings-error');
+            const settingsPinShow = document.getElementById('settings-pin-show');
+            const settingsPinForm = document.getElementById('settings-pin-form');
+            const settingsPinGrid = document.getElementById('settings-pin-grid');
+            const settingsPinConfirmGrid = document.getElementById('settings-pin-confirm-grid');
+            const settingsOpenSacratech = document.getElementById('settings-open-sacratech');
+            const settingsTabs = Array.from(document.querySelectorAll('[data-settings-tab]'));
+            const panelGeneral = document.getElementById('settings-panel-general');
+            const panelSecurity = document.getElementById('settings-panel-security');
+            const panelAccount = document.getElementById('settings-panel-account');
+            const panelAbout = document.getElementById('settings-panel-about');
+            const prefReduceMotion = document.getElementById('pref-reduce-motion');
+            const prefCompactList = document.getElementById('pref-compact-list');
 
             const tagCreateModal = document.getElementById('tag-create-modal');
             const tagCreateClose = document.getElementById('tag-create-close');
@@ -332,14 +414,94 @@
                 navMenu.classList.remove('open');
             }
 
+            function makePinInputs(container) {
+                const inputs = [];
+                container.innerHTML = '';
+                for (let i = 0; i < 6; i += 1) {
+                    const inp = document.createElement('input');
+                    inp.type = 'password';
+                    inp.inputMode = 'numeric';
+                    inp.maxLength = 1;
+                    inp.className = 'pin-box';
+                    inp.autocomplete = 'one-time-code';
+                    inp.addEventListener('input', () => {
+                        inp.value = (inp.value || '').replace(/\D/g, '').slice(0, 1);
+                        if (inp.value && i < 5) inputs[i + 1].focus();
+                    });
+                    inp.addEventListener('keydown', (e) => {
+                        if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i - 1].focus();
+                    });
+                    inputs.push(inp);
+                    container.appendChild(inp);
+                }
+                if (inputs[0]) {
+                    inputs[0].addEventListener('paste', (e) => {
+                        const txt = (e.clipboardData ? e.clipboardData.getData('text') : '') || '';
+                        const digits = txt.replace(/\D/g, '').slice(0, 6);
+                        if (digits.length !== 6) return;
+                        e.preventDefault();
+                        for (let i = 0; i < 6; i += 1) inputs[i].value = digits[i] || '';
+                        inputs[5].focus();
+                    });
+                }
+                return inputs;
+            }
+
+            const settingsPinInputs = settingsPinGrid ? makePinInputs(settingsPinGrid) : [];
+            const settingsPinConfirmInputs = settingsPinConfirmGrid ? makePinInputs(settingsPinConfirmGrid) : [];
+
+            function pinValue(inputs) {
+                return inputs.map((i) => (i.value || '').replace(/\D/g, '')).join('');
+            }
+
+            function clearPinInputs(inputs) {
+                for (const i of inputs) i.value = '';
+            }
+
+            function setSettingsTab(tab) {
+                for (const btn of settingsTabs) {
+                    const isActive = btn.getAttribute('data-settings-tab') === tab;
+                    btn.setAttribute('data-active', isActive ? 'true' : 'false');
+                }
+
+                const setPanel = (panel, isActive) => {
+                    if (!panel) return;
+                    panel.setAttribute('data-active', isActive ? 'true' : 'false');
+                };
+
+                setPanel(panelGeneral, tab === 'general');
+                setPanel(panelSecurity, tab === 'security');
+                setPanel(panelAccount, tab === 'account');
+                setPanel(panelAbout, tab === 'about');
+            }
+
+            function getPref(key, fallback = false) {
+                const v = localStorage.getItem('airlink.pref.' + key);
+                if (v === null) return fallback;
+                return v === '1';
+            }
+
+            function setPref(key, on) {
+                localStorage.setItem('airlink.pref.' + key, on ? '1' : '0');
+                window.dispatchEvent(new CustomEvent('airlink:prefs-updated'));
+            }
+
+            function setToggle(el, on) {
+                if (!el) return;
+                el.setAttribute('data-on', on ? 'true' : 'false');
+            }
+
             function openSettings() {
-                settingsPassword.value = '';
-                settingsPin.value = '';
-                settingsPinConfirm.value = '';
                 setSettingsError('');
+                if (settingsPassword) settingsPassword.value = '';
+                clearPinInputs(settingsPinInputs);
+                clearPinInputs(settingsPinConfirmInputs);
+                if (settingsPinForm) settingsPinForm.style.display = 'none';
+                setSettingsTab('general');
+                setToggle(prefReduceMotion, getPref('reduce_motion', false));
+                setToggle(prefCompactList, getPref('compact_list', false));
                 settingsModal.style.display = 'flex';
                 settingsModal.setAttribute('aria-hidden', 'false');
-                setTimeout(() => settingsPassword.focus(), 0);
             }
 
             function closeSettings() {
@@ -384,8 +546,8 @@
             async function saveSettings() {
                 setSettingsError('');
                 const password = (settingsPassword.value || '').trim();
-                const pin = (settingsPin.value || '').replace(/\D/g, '');
-                const pinConfirm = (settingsPinConfirm.value || '').replace(/\D/g, '');
+                const pin = pinValue(settingsPinInputs);
+                const pinConfirm = pinValue(settingsPinConfirmInputs);
 
                 if (!password) { setSettingsError('Informe sua senha.'); return; }
                 if (pin.length !== 6) { setSettingsError('Informe 6 dígitos no PIN.'); return; }
@@ -404,6 +566,39 @@
                     settingsSave.disabled = false;
                 }
             }
+
+            for (const btn of settingsTabs) {
+                btn.addEventListener('click', () => {
+                    const tab = btn.getAttribute('data-settings-tab') || 'general';
+                    setSettingsTab(tab);
+                });
+            }
+
+            if (settingsPinShow) settingsPinShow.addEventListener('click', () => {
+                if (!settingsPinForm) return;
+                settingsPinForm.style.display = settingsPinForm.style.display === 'none' ? 'block' : 'none';
+                setSettingsError('');
+                clearPinInputs(settingsPinInputs);
+                clearPinInputs(settingsPinConfirmInputs);
+                if (settingsPassword) settingsPassword.value = '';
+                setTimeout(() => { if (settingsPassword) settingsPassword.focus(); }, 0);
+            });
+
+            if (settingsOpenSacratech) settingsOpenSacratech.addEventListener('click', () => {
+                window.open(window.Airlink.SACRATECH_ID_URL, '_blank', 'noopener');
+            });
+
+            if (prefReduceMotion) prefReduceMotion.addEventListener('click', () => {
+                const next = prefReduceMotion.getAttribute('data-on') !== 'true';
+                setToggle(prefReduceMotion, next);
+                setPref('reduce_motion', next);
+            });
+
+            if (prefCompactList) prefCompactList.addEventListener('click', () => {
+                const next = prefCompactList.getAttribute('data-on') !== 'true';
+                setToggle(prefCompactList, next);
+                setPref('compact_list', next);
+            });
 
             if (navBtn) {
                 navBtn.addEventListener('click', () => {

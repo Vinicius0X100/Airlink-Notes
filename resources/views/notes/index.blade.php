@@ -11,6 +11,10 @@
         .notes-main { background: #ffffff; display: flex; flex-direction: column; min-width: 0; }
         .notes-pad { padding: 14px 14px; }
         .notes-divider { height: 1px; background: rgba(0, 0, 0, 0.08); margin: 10px 14px; }
+        .search-wrap { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.10); }
+        .search-icon { width: 17px; height: 17px; color: rgba(29, 29, 31, 0.52); flex: 0 0 auto; }
+        .search-input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; padding: 0; font-size: 14px; color: rgba(29, 29, 31, 0.86); }
+        .search-input::placeholder { color: rgba(29, 29, 31, 0.42); }
         .notes-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 14px 10px; }
         .notes-title { font-weight: 750; letter-spacing: -0.02em; }
         .icon-btn { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border-radius: 12px; border: 1px solid transparent; background: transparent; transition: background 140ms ease, border-color 140ms ease, color 140ms ease; }
@@ -23,9 +27,9 @@
         .subhead-title { font-size: 12px; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(29, 29, 31, 0.55); }
         .list { overflow: auto; display: flex; flex-direction: column; gap: 6px; padding: 6px 10px 12px; }
         .list.anim { opacity: 0.98; }
-        .list-item { display: flex; align-items: center; gap: 10px; padding: 10px 10px; border-radius: 14px; border: 1px solid transparent; background: rgba(255, 255, 255, 0.0); text-align: left; cursor: pointer; transition: background 140ms ease, border-color 140ms ease, transform 160ms ease, opacity 160ms ease; }
-        .list-item:hover { background: rgba(255, 255, 255, 0.65); border-color: rgba(0, 0, 0, 0.06); }
-        .list-item[aria-selected="true"] { background: rgba(255, 255, 255, 0.92); border-color: rgba(0, 0, 0, 0.10); }
+        .list-item { display: flex; align-items: center; gap: 10px; padding: 10px 10px; border-radius: 14px; border: 0; background: transparent; text-align: left; cursor: pointer; transition: background 140ms ease, transform 160ms ease, opacity 160ms ease; }
+        .list-item:hover { background: rgba(0, 0, 0, 0.04); }
+        .list-item[aria-selected="true"] { background: rgba(0, 0, 0, 0.06); }
         .list-item .icon { color: rgba(29, 29, 31, 0.62); }
         .list-item-title { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .list-item-sub { font-size: 12px; color: rgba(29, 29, 31, 0.62); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
@@ -38,11 +42,11 @@
         .pin-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid transparent; background: transparent; opacity: 0; transition: opacity 120ms ease, background 140ms ease, border-color 140ms ease; }
         .pin-btn .mi { width: 16px; height: 16px; }
         .list-item:hover .pin-btn { opacity: 1; }
-        .pin-btn:hover { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.08); }
-        .pin-btn[data-pinned="true"] { opacity: 1; background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.08); }
+        .pin-btn:hover { background: rgba(0, 0, 0, 0.04); }
+        .pin-btn[data-pinned="true"] { opacity: 1; background: rgba(0, 0, 0, 0.04); }
         .more { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid transparent; background: transparent; opacity: 0; transition: opacity 120ms ease, background 140ms ease, border-color 140ms ease; }
         .list-item:hover .more { opacity: 1; }
-        .more:hover { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.08); }
+        .more:hover { background: rgba(0, 0, 0, 0.04); }
         .more:active { background: rgba(0, 0, 0, 0.08); }
         .folder-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(0, 0, 0, 0.10); background: rgba(255, 255, 255, 0.65); color: rgba(29, 29, 31, 0.70); margin-right: 6px; }
         .tag-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 750; letter-spacing: 0.02em; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(0, 0, 0, 0.10); background: rgba(255, 255, 255, 0.65); color: rgba(29, 29, 31, 0.72); margin-right: 6px; }
@@ -72,8 +76,10 @@
         .empty-title { font-weight: 750; letter-spacing: -0.02em; }
         .empty-sub { margin-top: 6px; color: rgba(29, 29, 31, 0.68); font-size: 13px; line-height: 1.45; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.28); display: none; align-items: center; justify-content: center; z-index: 60; }
-        .modal { width: 440px; max-width: calc(100vw - 24px); background: rgba(255, 255, 255, 0.86); border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 22px; padding: 16px 16px; backdrop-filter: blur(18px); }
-        .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .modal { width: 440px; max-width: calc(100vw - 24px); background: rgba(255, 255, 255, 0.88); border: 1px solid rgba(0, 0, 0, 0.10); border-radius: 22px; padding: 0; backdrop-filter: blur(18px); overflow: hidden; }
+        .modal-wide { width: 620px; }
+        .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+        .modal-body { padding: 14px 16px 16px; }
         .modal-title { font-weight: 780; letter-spacing: -0.02em; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
         .modal-btn { height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.12); background: rgba(255, 255, 255, 0.70); font-weight: 700; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease; }
@@ -85,10 +91,21 @@
         .modal input[type="color"] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; padding: 0; border-radius: 14px; border: 1px solid rgba(0,0,0,0.14); background: rgba(255,255,255,0.95); overflow: hidden; }
         .modal input[type="color"]::-webkit-color-swatch-wrapper { padding: 6px; }
         .modal input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 10px; }
+        .modal label { display: block; font-size: 12px; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(29, 29, 31, 0.55); margin-bottom: 8px; }
+        .modal input[type="text"], .modal input[type="password"], .modal input[type="search"] { width: 100%; box-sizing: border-box; border: 1px solid rgba(0,0,0,0.14); background: rgba(255,255,255,0.92); padding: 12px 14px; border-radius: 14px; outline: none; font-size: 14px; }
+        .modal input[type="text"]:focus, .modal input[type="password"]:focus, .modal input[type="search"]:focus { border-color: rgba(0, 113, 227, 0.40); }
+        .modal-split { display: grid; grid-template-columns: 220px 1fr; gap: 12px; }
+        .modal-pane { border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 18px; background: rgba(245, 245, 247, 0.55); padding: 14px; }
+        .folder-preview { display: flex; flex-direction: column; gap: 10px; }
+        .folder-preview-icon { width: 54px; height: 54px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.78); border: 1px solid rgba(0,0,0,0.08); font-size: 26px; }
+        .folder-preview-name { font-weight: 820; letter-spacing: -0.02em; }
+        .color-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .color-chip { width: 22px; height: 22px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.12); background: transparent; padding: 0; }
+        .color-chip[aria-selected="true"] { border-color: rgba(0, 113, 227, 0.55); outline: 2px solid rgba(0, 113, 227, 0.18); outline-offset: 2px; }
         .pin-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
         .pin-box { height: 46px; text-align: center; font-size: 20px; font-weight: 800; letter-spacing: 0.02em; border-radius: 12px; }
         .emoji-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
-        .emoji-btn { border: 1px solid rgba(0, 0, 0, 0.10); background: rgba(255, 255, 255, 0.74); border-radius: 12px; height: 36px; font-size: 18px; }
+        .emoji-btn { border: 1px solid rgba(0, 0, 0, 0.08); background: rgba(255, 255, 255, 0.78); border-radius: 12px; height: 36px; font-size: 18px; }
         .emoji-btn[aria-selected="true"] { border-color: rgba(0, 113, 227, 0.38); background: rgba(0, 113, 227, 0.10); }
         .tag-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; max-height: 260px; overflow: auto; padding: 6px; border: 1px solid rgba(0, 0, 0, 0.10); border-radius: 18px; background: rgba(245, 245, 247, 0.55); }
         .tag-option { width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; border: 1px solid transparent; background: rgba(255, 255, 255, 0.75); padding: 10px 10px; border-radius: 14px; font-weight: 700; letter-spacing: -0.01em; transition: background 140ms ease, border-color 140ms ease; }
@@ -104,6 +121,7 @@
         .ctx button[data-variant="danger"] .mi { color: #b42318; }
         .ctx button[data-variant="danger"]:hover { background: rgba(180, 35, 24, 0.08); border-color: rgba(180, 35, 24, 0.14); }
         @media (max-width: 980px) { .notes-grid { grid-template-columns: 1fr; } .notes-sidebar { border-right: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.08); } .notes-surface { height: auto; } }
+        @media (max-width: 620px) { .modal-split { grid-template-columns: 1fr; } }
     </style>
 
     <div class="notes-page notes-surface">
@@ -150,7 +168,13 @@
                 <div class="notes-divider"></div>
 
                 <div class="notes-pad" style="padding-top:0;">
-                    <input id="search" type="text" placeholder="Buscar notas..." autocomplete="off">
+                    <div class="search-wrap">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                        </svg>
+                        <input id="search" class="search-input" type="search" placeholder="Buscar notas" name="airlink-notes-search" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="search">
+                    </div>
                 </div>
                 <div id="note-list" class="list" style="padding-top:0; flex:1;"></div>
             </aside>
@@ -262,13 +286,14 @@
                     </svg>
                 </button>
             </div>
-            <div style="height:12px;"></div>
-            <label for="folder-modal-input">Nome</label>
-            <input id="folder-modal-input" type="text" autocomplete="off" maxlength="120">
-            <div class="error" id="folder-modal-error" style="display:none; margin-top:8px;"></div>
-            <div class="modal-actions">
-                <button id="folder-modal-cancel" class="modal-btn" type="button">Cancelar</button>
-                <button id="folder-modal-save" class="modal-btn" data-variant="primary" type="button">Salvar</button>
+            <div class="modal-body">
+                <label for="folder-modal-input">Nome</label>
+                <input id="folder-modal-input" type="text" autocomplete="off" maxlength="120">
+                <div class="error" id="folder-modal-error" style="display:none; margin-top:10px;"></div>
+                <div class="modal-actions">
+                    <button id="folder-modal-cancel" class="modal-btn" type="button">Cancelar</button>
+                    <button id="folder-modal-save" class="modal-btn" data-variant="primary" type="button">Salvar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -283,53 +308,66 @@
                     </svg>
                 </button>
             </div>
-            <div style="height:10px;"></div>
+            <div class="modal-body">
+                <div id="vault-mode-create">
+                    <div class="muted">Crie um PIN de 6 dígitos para acessar a pasta Oculta.</div>
+                    <div style="height:12px;"></div>
+                    <label>PIN</label>
+                    <div class="pin-grid" id="vault-create-pin-grid"></div>
+                    <div style="height:10px;"></div>
+                    <label>Confirmar PIN</label>
+                    <div class="pin-grid" id="vault-create-confirm-grid"></div>
+                </div>
 
-            <div id="vault-mode-create">
-                <div class="muted">Crie um PIN de 6 dígitos para acessar a pasta Oculta.</div>
-                <div style="height:12px;"></div>
-                <label>PIN</label>
-                <div class="pin-grid" id="vault-create-pin-grid"></div>
-                <div style="height:10px;"></div>
-                <label>Confirmar PIN</label>
-                <div class="pin-grid" id="vault-create-confirm-grid"></div>
-            </div>
+                <div id="vault-mode-enter" style="display:none;">
+                    <div class="muted">Digite seu PIN de 6 dígitos para continuar.</div>
+                    <div style="height:12px;"></div>
+                    <label>PIN</label>
+                    <div class="pin-grid" id="vault-enter-grid"></div>
+                </div>
 
-            <div id="vault-mode-enter" style="display:none;">
-                <div class="muted">Digite seu PIN de 6 dígitos para continuar.</div>
-                <div style="height:12px;"></div>
-                <label>PIN</label>
-                <div class="pin-grid" id="vault-enter-grid"></div>
-            </div>
-
-            <div class="error" id="vault-modal-error" style="display:none; margin-top:10px;"></div>
-            <div class="modal-actions">
-                <button id="vault-modal-cancel" class="modal-btn" type="button">Cancelar</button>
-                <button id="vault-modal-save" class="modal-btn" data-variant="primary" type="button">Continuar</button>
+                <div class="error" id="vault-modal-error" style="display:none; margin-top:10px;"></div>
+                <div class="modal-actions">
+                    <button id="vault-modal-cancel" class="modal-btn" type="button">Cancelar</button>
+                    <button id="vault-modal-save" class="modal-btn" data-variant="primary" type="button">Continuar</button>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="folder-color-modal" class="modal-overlay" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="folder-color-title">
+        <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="folder-color-title">
             <div class="modal-head">
-                <div id="folder-color-title" class="modal-title">Cor da pasta</div>
+                <div id="folder-color-title" class="modal-title">Pasta</div>
                 <button id="folder-color-close" class="icon-btn" type="button" aria-label="Fechar">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18"></path><path d="M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            <div style="height:12px;"></div>
-            <label for="folder-color-input">Cor</label>
-            <input id="folder-color-input" type="color" value="#0071E3">
-            <div style="height:10px;"></div>
-            <label>Emoji da pasta</label>
-            <div id="folder-emoji-grid" class="emoji-grid"></div>
-            <div class="error" id="folder-color-error" style="display:none; margin-top:8px;"></div>
-            <div class="modal-actions">
-                <button id="folder-color-cancel" class="modal-btn" type="button">Cancelar</button>
-                <button id="folder-color-save" class="modal-btn" data-variant="primary" type="button">Salvar</button>
+            <div class="modal-body">
+                <div class="modal-split">
+                    <div class="modal-pane">
+                        <div class="folder-preview">
+                            <div id="folder-preview-icon" class="folder-preview-icon">📁</div>
+                            <div id="folder-preview-name" class="folder-preview-name">Pasta</div>
+                            <div class="muted" style="line-height:1.45;">Personalize o emoji e a cor para encontrar mais rápido.</div>
+                        </div>
+                    </div>
+                    <div class="modal-pane">
+                        <label>Cor</label>
+                        <div id="folder-color-row" class="color-row" style="margin-bottom:10px;"></div>
+                        <input id="folder-color-input" type="color" value="#0071E3">
+                        <div style="height:14px;"></div>
+                        <label>Emoji</label>
+                        <div id="folder-emoji-grid" class="emoji-grid"></div>
+                        <div class="error" id="folder-color-error" style="display:none; margin-top:10px;"></div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button id="folder-color-cancel" class="modal-btn" type="button">Cancelar</button>
+                    <button id="folder-color-save" class="modal-btn" data-variant="primary" type="button">Salvar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -344,11 +382,12 @@
                     </svg>
                 </button>
             </div>
-            <div style="height:10px;"></div>
-            <div class="muted">Essa ação remove a nota permanentemente. Deseja continuar?</div>
-            <div class="modal-actions">
-                <button id="delete-note-cancel" class="modal-btn" type="button">Cancelar</button>
-                <button id="delete-note-confirm" class="modal-btn" data-variant="danger" type="button">Excluir</button>
+            <div class="modal-body">
+                <div class="muted">Essa ação remove a nota permanentemente. Deseja continuar?</div>
+                <div class="modal-actions">
+                    <button id="delete-note-cancel" class="modal-btn" type="button">Cancelar</button>
+                    <button id="delete-note-confirm" class="modal-btn" data-variant="danger" type="button">Excluir</button>
+                </div>
             </div>
         </div>
     </div>
@@ -363,13 +402,14 @@
                     </svg>
                 </button>
             </div>
-            <div style="height:12px;"></div>
-            <label>Escolha uma tag</label>
-            <div id="tag-list" class="tag-list" role="listbox" aria-label="Tags"></div>
-            <div class="error" id="tag-modal-error" style="display:none; margin-top:8px;"></div>
-            <div class="modal-actions">
-                <button id="tag-modal-cancel" class="modal-btn" type="button">Cancelar</button>
-                <button id="tag-modal-save" class="modal-btn" data-variant="primary" type="button">Aplicar</button>
+            <div class="modal-body">
+                <label>Escolha uma tag</label>
+                <div id="tag-list" class="tag-list" role="listbox" aria-label="Tags"></div>
+                <div class="error" id="tag-modal-error" style="display:none; margin-top:10px;"></div>
+                <div class="modal-actions">
+                    <button id="tag-modal-cancel" class="modal-btn" type="button">Cancelar</button>
+                    <button id="tag-modal-save" class="modal-btn" data-variant="primary" type="button">Aplicar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -384,7 +424,7 @@
                     </svg>
                 </button>
             </div>
-            <div id="onboarding-step-1">
+            <div class="modal-body" id="onboarding-step-1">
                 <div style="height:10px;"></div>
                 <div class="muted">Quatro pontos rápidos para você começar.</div>
                 <div style="height:12px;"></div>
@@ -398,7 +438,7 @@
                     <button id="onboarding-next" class="modal-btn" data-variant="primary" type="button">Continuar</button>
                 </div>
             </div>
-            <div id="onboarding-step-2" style="display:none;">
+            <div class="modal-body" id="onboarding-step-2" style="display:none;">
                 <div style="height:10px;"></div>
                 <div class="muted">Personalize seu espaço para se organizar melhor.</div>
                 <div style="height:12px;"></div>
@@ -459,6 +499,9 @@
         const folderColorCancelEl = document.getElementById('folder-color-cancel');
         const folderColorSaveEl = document.getElementById('folder-color-save');
         const folderColorInputEl = document.getElementById('folder-color-input');
+        const folderColorRowEl = document.getElementById('folder-color-row');
+        const folderPreviewIconEl = document.getElementById('folder-preview-icon');
+        const folderPreviewNameEl = document.getElementById('folder-preview-name');
         const folderEmojiGridEl = document.getElementById('folder-emoji-grid');
         const folderColorErrorEl = document.getElementById('folder-color-error');
 
@@ -482,6 +525,16 @@
         const deleteNoteConfirmEl = document.getElementById('delete-note-confirm');
 
         const ctxEl = document.getElementById('ctx');
+
+        if (searchEl) {
+            searchEl.value = '';
+            searchEl.setAttribute('autocomplete', 'new-password');
+            searchEl.setAttribute('autocapitalize', 'off');
+            searchEl.setAttribute('autocorrect', 'off');
+            searchEl.setAttribute('spellcheck', 'false');
+            searchEl.setAttribute('readonly', 'readonly');
+            searchEl.addEventListener('focus', () => { searchEl.removeAttribute('readonly'); }, { once: true });
+        }
 
         const toolbarEl = document.querySelector('.toolbar');
         const fontSelectEl = document.getElementById('font-select');
@@ -538,6 +591,7 @@
 
         const FOLDER_EMOJIS = ['📁', '📂', '🗂️', '📌', '⭐', '🔥', '🧠', '💼', '🏢', '🛠️', '📚', '🧾', '🧪', '🎯', '🚀', '💡'];
         let selectedFolderEmoji = null;
+        const FOLDER_COLORS = ['#0071E3', '#34C759', '#FF9500', '#FF2D55', '#AF52DE', '#00C7BE', '#FF3B30', '#8E8E93', '#111111'];
 
         function setError(msg) {
             errEl.textContent = msg || '';
@@ -652,6 +706,7 @@
                 btn.addEventListener('click', () => {
                     selectedFolderEmoji = emoji;
                     renderFolderEmojiOptions();
+                    renderFolderPreview();
                 });
                 return btn;
             };
@@ -701,12 +756,47 @@
         }
 
         let folderColorFolderId = null;
+        let folderColorFolder = null;
+
+        function renderFolderColorRow() {
+            if (!folderColorRowEl) return;
+            folderColorRowEl.innerHTML = '';
+            const current = (folderColorInputEl.value || '').toUpperCase();
+            for (const c of FOLDER_COLORS) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'color-chip';
+                btn.style.background = c;
+                btn.setAttribute('aria-label', 'Cor ' + c);
+                btn.setAttribute('aria-selected', current === c ? 'true' : 'false');
+                btn.addEventListener('click', () => {
+                    folderColorInputEl.value = c;
+                    renderFolderColorRow();
+                    renderFolderPreview();
+                });
+                folderColorRowEl.appendChild(btn);
+            }
+        }
+
+        function renderFolderPreview() {
+            if (!folderColorFolder) return;
+            const name = folderColorFolder.name || 'Pasta';
+            const color = (folderColorInputEl.value || '#0071E3').toUpperCase();
+            const emoji = selectedFolderEmoji ? String(selectedFolderEmoji) : '📁';
+            folderPreviewIconEl.textContent = emoji;
+            folderPreviewNameEl.textContent = name;
+            folderPreviewNameEl.style.color = color;
+            folderPreviewIconEl.style.borderColor = color + '33';
+        }
 
         function openFolderColorModal(folder) {
             folderColorFolderId = folder ? folder.id : null;
+            folderColorFolder = folder || null;
             folderColorInputEl.value = (folder && folder.color) ? String(folder.color) : '#0071E3';
             selectedFolderEmoji = (folder && folder.icon_emoji) ? String(folder.icon_emoji) : '';
             renderFolderEmojiOptions();
+            renderFolderColorRow();
+            renderFolderPreview();
             setFolderColorError('');
             folderColorModalEl.style.display = 'flex';
             folderColorModalEl.setAttribute('aria-hidden', 'false');
@@ -717,6 +807,7 @@
             folderColorModalEl.setAttribute('aria-hidden', 'true');
             setFolderColorError('');
             folderColorFolderId = null;
+            folderColorFolder = null;
         }
 
         async function submitFolderColorModal() {
@@ -1993,6 +2084,10 @@
         folderColorCloseEl.addEventListener('click', closeFolderColorModal);
         folderColorCancelEl.addEventListener('click', closeFolderColorModal);
         folderColorSaveEl.addEventListener('click', submitFolderColorModal);
+        folderColorInputEl.addEventListener('input', () => {
+            renderFolderColorRow();
+            renderFolderPreview();
+        });
 
         tagModalEl.addEventListener('click', (e) => {
             if (e.target === tagModalEl) closeTagModal();
