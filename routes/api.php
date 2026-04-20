@@ -40,6 +40,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/vault/pin/change', [VaultController::class, 'changePin']);
     Route::post('/vault/notes', [VaultController::class, 'listHidden']);
     Route::post('/vault/hide-note/{note}', [VaultController::class, 'hideNote']);
+    Route::post('/vault/hidden/{hiddenId}/pin', [VaultController::class, 'pinHidden']);
+    Route::post('/vault/hidden/{hiddenId}/restore', [VaultController::class, 'restoreHidden']);
+    Route::delete('/vault/hidden/{hiddenId}', [VaultController::class, 'deleteHidden']);
 
     Route::get('/notes', [NoteController::class, 'index']);
     Route::post('/notes', [NoteController::class, 'store']);

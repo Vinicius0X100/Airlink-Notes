@@ -406,7 +406,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="muted">Essa ação remove a nota permanentemente. Deseja continuar?</div>
+                <div id="delete-note-text" class="muted">Essa ação remove a nota permanentemente. Deseja continuar?</div>
                 <div class="modal-actions">
                     <button id="delete-note-cancel" class="modal-btn" type="button">Cancelar</button>
                     <button id="delete-note-confirm" class="modal-btn" data-variant="danger" type="button">Excluir</button>
@@ -565,6 +565,8 @@
         const onboardingDoneEl = document.getElementById('onboarding-done');
 
         const deleteNoteModalEl = document.getElementById('delete-note-modal');
+        const deleteNoteTitleEl = document.getElementById('delete-note-title');
+        const deleteNoteTextEl = document.getElementById('delete-note-text');
         const deleteNoteCloseEl = document.getElementById('delete-note-close');
         const deleteNoteCancelEl = document.getElementById('delete-note-cancel');
         const deleteNoteConfirmEl = document.getElementById('delete-note-confirm');
@@ -817,8 +819,15 @@
             }
         }
 
-        function openDeleteNoteModal(noteId) {
+        function openDeleteNoteModal(noteId, opts = {}) {
             deletingNoteId = noteId;
+            const title = opts.title ? String(opts.title) : 'Excluir nota';
+            const text = opts.text ? String(opts.text) : 'Essa ação remove a nota permanentemente. Deseja continuar?';
+            const confirmText = opts.confirmText ? String(opts.confirmText) : 'Excluir';
+
+            deleteNoteTitleEl.textContent = title;
+            deleteNoteTextEl.textContent = text;
+            deleteNoteConfirmEl.textContent = confirmText;
             deleteNoteModalEl.style.display = 'flex';
             deleteNoteModalEl.setAttribute('aria-hidden', 'false');
             return new Promise((resolve) => {
@@ -1558,6 +1567,10 @@
 
                 if (view === 'hidden') {
                     btn.addEventListener('click', () => selectHidden(n.id));
+                    btn.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        openHiddenNoteMenu(n, e.clientX, e.clientY);
+                    });
                     return btn;
                 }
 
@@ -1627,7 +1640,7 @@
                 noteListEl.appendChild(el);
             };
 
-            if (view === 'notes') {
+            if (view === 'notes' || view === 'hidden') {
                 const pinned = filtered.filter(n => !!n.is_pinned);
                 const regular = filtered.filter(n => !n.is_pinned);
                 if (pinned.length > 0) {
@@ -2053,6 +2066,55 @@
             renderEditor();
         }
 
+        async function pinHiddenNote(hiddenNote, nextPinned) {
+            const pin = await requireVaultPin({ allowCreate: true });
+            if (!pin) return;
+            const updated = await window.Airlink.api('/vault/hidden/' + hiddenNote.id + '/pin', { method: 'POST', body: { pin, is_pinned: !!nextPinned } });
+            if (updated && updated.note) {
+                const idx = hiddenNotes.findIndex(x => x.id === hiddenNote.id);
+                if (idx >= 0) hiddenNotes[idx] = updated.note;
+                renderNotes();
+                renderEditor();
+            }
+        }
+
+        async function restoreHiddenNote(hiddenNote) {
+            const pin = await requireVaultPin({ allowCreate: true });
+            if (!pin) return;
+            const payload = await window.Airlink.api('/vault/hidden/' + hiddenNote.id + '/restore', { method: 'POST', body: { pin } });
+            hiddenNotes = hiddenNotes.filter(x => x.id !== hiddenNote.id);
+            selectedHiddenId = selectedHiddenId === hiddenNote.id ? null : selectedHiddenId;
+            if (payload && payload.note) {
+                view = 'notes';
+                btnNewNote.disabled = false;
+                selectedFolderId = null;
+                selectedHiddenId = null;
+                selectedTrashId = null;
+                notesById.set(payload.note.id, payload.note);
+                notes.unshift(payload.note);
+                selectedNoteId = payload.note.id;
+            }
+            renderFolders();
+            renderNotes();
+            renderEditor();
+        }
+
+        async function deleteHiddenNote(hiddenNote) {
+            const pin = await requireVaultPin({ allowCreate: true });
+            if (!pin) return;
+            const ok = await openDeleteNoteModal(hiddenNote.id, {
+                title: 'Excluir nota oculta',
+                text: 'Essa ação remove a nota oculta permanentemente. Deseja continuar?',
+                confirmText: 'Excluir',
+            });
+            if (!ok) return;
+            await window.Airlink.api('/vault/hidden/' + hiddenNote.id, { method: 'DELETE', body: { pin } });
+            hiddenNotes = hiddenNotes.filter(x => x.id !== hiddenNote.id);
+            selectedHiddenId = selectedHiddenId === hiddenNote.id ? null : selectedHiddenId;
+            renderNotes();
+            renderEditor();
+        }
+
         function openNoteMenu(note, x, y) {
             if (view !== 'notes') return;
 
@@ -2085,6 +2147,35 @@
                     icon: `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>`,
                     onClick: async () => {
                         try { await deleteNote(note); } catch (e) { setError(e.message || 'Falha ao excluir.'); }
+                    },
+                },
+            ], x, y);
+        }
+
+        function openHiddenNoteMenu(note, x, y) {
+            if (view !== 'hidden') return;
+
+            openCtx([
+                {
+                    label: note.is_pinned ? 'Desafixar' : 'Fixar',
+                    icon: `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 9l7-7"></path><path d="M3 21l6-6"></path><path d="M7 17l4-4"></path><path d="M3 3l18 18"></path></svg>`,
+                    onClick: async () => {
+                        try { await pinHiddenNote(note, !note.is_pinned); } catch (e) { setError(e.message || 'Falha ao fixar.'); }
+                    },
+                },
+                {
+                    label: 'Remover da Pasta Oculta',
+                    icon: `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>`,
+                    onClick: async () => {
+                        try { await restoreHiddenNote(note); } catch (e) { setError(e.message || 'Falha ao restaurar.'); }
+                    },
+                },
+                {
+                    label: 'Excluir',
+                    variant: 'danger',
+                    icon: `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>`,
+                    onClick: async () => {
+                        try { await deleteHiddenNote(note); } catch (e) { setError(e.message || 'Falha ao excluir.'); }
                     },
                 },
             ], x, y);
@@ -2451,6 +2542,81 @@
         document.addEventListener('selectionchange', updateToolbarState);
         bodyEl.addEventListener('keyup', updateToolbarState);
         bodyEl.addEventListener('mouseup', updateToolbarState);
+
+        let preExitArmed = false;
+
+        function closestElFromSelection(tagName) {
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return null;
+            const node = sel.anchorNode;
+            if (!node) return null;
+            const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+            if (!el) return null;
+            return el.closest(tagName);
+        }
+
+        function isSelectionCollapsedAtEndOf(el) {
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return false;
+            if (!sel.isCollapsed) return false;
+            const r = sel.getRangeAt(0);
+            const end = document.createRange();
+            end.selectNodeContents(el);
+            end.collapse(false);
+            return r.compareBoundaryPoints(Range.END_TO_END, end) === 0 && r.compareBoundaryPoints(Range.START_TO_END, end) === 0;
+        }
+
+        function insertParagraphAfter(el) {
+            const div = document.createElement('div');
+            div.innerHTML = '<br>';
+            el.parentNode.insertBefore(div, el.nextSibling);
+            const r = document.createRange();
+            r.selectNodeContents(div);
+            r.collapse(true);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(r);
+        }
+
+        bodyEl.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') {
+                preExitArmed = false;
+                return;
+            }
+            if (e.shiftKey) {
+                preExitArmed = false;
+                return;
+            }
+            if (view !== 'notes') return;
+
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return;
+
+            const markEl = closestElFromSelection('mark');
+            if (markEl && bodyEl.contains(markEl)) {
+                e.preventDefault();
+                preExitArmed = false;
+                const block = markEl.closest('div, p, li, blockquote');
+                insertParagraphAfter(block || markEl);
+                scheduleAutosave();
+                return;
+            }
+
+            const preEl = closestElFromSelection('pre');
+            if (preEl && bodyEl.contains(preEl) && isSelectionCollapsedAtEndOf(preEl)) {
+                if (preExitArmed) {
+                    e.preventDefault();
+                    preExitArmed = false;
+                    insertParagraphAfter(preEl);
+                    scheduleAutosave();
+                    return;
+                }
+                preExitArmed = true;
+                return;
+            }
+
+            preExitArmed = false;
+        });
 
         toolbarEl.addEventListener('click', (e) => {
             const btn = e.target.closest('button');

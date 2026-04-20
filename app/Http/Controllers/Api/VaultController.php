@@ -16,6 +16,28 @@ use Illuminate\Support\Facades\Hash;
 
 class VaultController extends Controller
 {
+    private function getVaultForUserOrFail(int $userId)
+    {
+        $vault = DB::connection('airlink')
+            ->table('airlink_notes_vaults')
+            ->where('user_id', $userId)
+            ->first();
+
+        if (! $vault) {
+            abort(409, 'PIN não configurado.');
+        }
+
+        return $vault;
+    }
+
+    private function assertValidPin(int $userId, string $pin): void
+    {
+        $vault = $this->getVaultForUserOrFail($userId);
+        if (! Hash::check($pin, (string) $vault->pin_hash)) {
+            abort(422, 'PIN inválido.');
+        }
+    }
+
     public function status(): JsonResponse
     {
         $userId = (int) request()->user()->id;
@@ -91,19 +113,7 @@ class VaultController extends Controller
     {
         $userId = (int) $request->user()->id;
         $pin = (string) $request->validated('pin');
-
-        $vault = DB::connection('airlink')
-            ->table('airlink_notes_vaults')
-            ->where('user_id', $userId)
-            ->first();
-
-        if (! $vault) {
-            return response()->json(['message' => 'PIN não configurado.'], 409);
-        }
-
-        if (! Hash::check($pin, (string) $vault->pin_hash)) {
-            return response()->json(['message' => 'PIN inválido.'], 422);
-        }
+        $this->assertValidPin($userId, $pin);
 
         $notes = DB::connection('airlink')
             ->table('airlink_notes_hidden_notes')
@@ -128,19 +138,7 @@ class VaultController extends Controller
         }
 
         $pin = (string) $request->validated('pin');
-
-        $vault = DB::connection('airlink')
-            ->table('airlink_notes_vaults')
-            ->where('user_id', $userId)
-            ->first();
-
-        if (! $vault) {
-            return response()->json(['message' => 'PIN não configurado.'], 409);
-        }
-
-        if (! Hash::check($pin, (string) $vault->pin_hash)) {
-            return response()->json(['message' => 'PIN inválido.'], 422);
-        }
+        $this->assertValidPin($userId, $pin);
 
         $content = $htmlSanitizer->sanitize((string) ($note->content ?? ''));
         $title = $note->title ? trim((string) $note->title) : '';
@@ -163,5 +161,113 @@ class VaultController extends Controller
         });
 
         return response()->json(['ok' => true]);
+    }
+
+    public function pinHidden(VaultPinRequest $request, int $hiddenId): JsonResponse
+    {
+        $userId = (int) $request->user()->id;
+        $pin = (string) $request->validated('pin');
+        $this->assertValidPin($userId, $pin);
+
+        $data = $request->validate([
+            'is_pinned' => ['required', 'boolean'],
+        ]);
+
+        $row = DB::connection('airlink')
+            ->table('airlink_notes_hidden_notes')
+            ->where('user_id', $userId)
+            ->where('id', $hiddenId)
+            ->first();
+
+        if (! $row) {
+            abort(404);
+        }
+
+        DB::connection('airlink')
+            ->table('airlink_notes_hidden_notes')
+            ->where('user_id', $userId)
+            ->where('id', $hiddenId)
+            ->update([
+                'is_pinned' => (bool) $data['is_pinned'],
+                'updated_at' => now(),
+            ]);
+
+        $updated = DB::connection('airlink')
+            ->table('airlink_notes_hidden_notes')
+            ->where('user_id', $userId)
+            ->where('id', $hiddenId)
+            ->first();
+
+        return response()->json(['note' => $updated]);
+    }
+
+    public function deleteHidden(VaultPinRequest $request, int $hiddenId): JsonResponse
+    {
+        $userId = (int) $request->user()->id;
+        $pin = (string) $request->validated('pin');
+        $this->assertValidPin($userId, $pin);
+
+        $deleted = DB::connection('airlink')
+            ->table('airlink_notes_hidden_notes')
+            ->where('user_id', $userId)
+            ->where('id', $hiddenId)
+            ->delete();
+
+        if ($deleted === 0) {
+            abort(404);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function restoreHidden(
+        VaultPinRequest $request,
+        int $hiddenId,
+        HtmlSanitizerService $htmlSanitizer
+    ): JsonResponse {
+        $userId = (int) $request->user()->id;
+        $pin = (string) $request->validated('pin');
+        $this->assertValidPin($userId, $pin);
+
+        $row = DB::connection('airlink')
+            ->table('airlink_notes_hidden_notes')
+            ->where('user_id', $userId)
+            ->where('id', $hiddenId)
+            ->first();
+
+        if (! $row) {
+            abort(404);
+        }
+
+        $content = $htmlSanitizer->sanitize((string) ($row->content ?? ''));
+        $title = isset($row->title) ? trim((string) $row->title) : '';
+        if ($title === '') {
+            $title = $htmlSanitizer->extractTitle($content);
+        }
+
+        $note = DB::connection('airlink')->transaction(function () use ($userId, $row, $title, $content) {
+            $maxSort = (int) (Note::query()->forUser($userId)->max('sort_order') ?? 0);
+            $note = Note::query()->create([
+                'user_id' => $userId,
+                'folder_id' => null,
+                'tag_id' => null,
+                'sort_order' => $maxSort + 1,
+                'title' => $title !== '' ? $title : null,
+                'content' => $content,
+                'is_pinned' => (bool) ($row->is_pinned ?? false),
+                'is_archived' => false,
+                'version' => 1,
+            ]);
+
+            DB::connection('airlink')
+                ->table('airlink_notes_hidden_notes')
+                ->where('user_id', $userId)
+                ->where('id', $row->id)
+                ->delete();
+
+            return $note;
+        });
+
+        return response()->json(['note' => $note]);
     }
 }
