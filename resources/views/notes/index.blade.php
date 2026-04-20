@@ -8,7 +8,7 @@
         .notes-surface { background: #ffffff; border: 0; border-radius: 0; box-shadow: none; overflow: hidden; height: calc(100vh - 64px); }
         .notes-grid { display: grid; grid-template-columns: 320px 1fr; height: 100%; }
         .notes-sidebar { background: #f5f5f7; border-right: 1px solid rgba(0, 0, 0, 0.10); display: flex; flex-direction: column; min-width: 0; }
-        .notes-main { background: #ffffff; display: flex; flex-direction: column; min-width: 0; }
+        .notes-main { background: #ffffff; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
         .notes-pad { padding: 14px 14px; }
         .notes-divider { height: 1px; background: rgba(0, 0, 0, 0.08); margin: 10px 14px; }
         .search-wrap { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.10); }
@@ -58,7 +58,8 @@
         .tool[data-active="true"] { background: rgba(0, 0, 0, 0.06); border-color: rgba(0, 0, 0, 0.18); }
         .tool select { border: 0; background: transparent; outline: none; font-weight: 650; color: inherit; }
         .tool:disabled { opacity: 0.55; }
-        .editor-wrap { position: relative; flex: 1; overflow: auto; padding: 18px 22px; }
+        .editor-wrap { position: relative; flex: 1; overflow: auto; padding: 18px 22px; min-height: 0; }
+        .editor { min-height: 0; }
         .editor { max-width: none; margin: 0; }
         .editor-title { font-size: 28px; font-weight: 780; letter-spacing: -0.03em; line-height: 1.15; outline: none; padding: 4px 2px; }
         .editor-body { font-size: 15px; line-height: 1.6; outline: none; padding: 10px 2px 40px; }
