@@ -531,6 +531,7 @@
         const VAULT_PIN_TTL_MS = 10 * 60 * 1000;
         let vaultModalMode = 'enter';
         let vaultModalResolve = null;
+        let vaultSubmitting = false;
 
         let deleteNoteResolve = null;
         let deletingNoteId = null;
@@ -611,6 +612,32 @@
 
         function clearPinInputs(inputs) {
             for (const i of inputs) i.value = '';
+        }
+
+        function maybeSubmitVaultEnter() {
+            if (vaultModalMode !== 'enter') return;
+            if (vaultSubmitting) return;
+            if (vaultModalEl.getAttribute('aria-hidden') !== 'false') return;
+            const pin = pinValue(vaultEnterInputs);
+            if (pin.length !== 6) return;
+            submitVaultModal();
+        }
+
+        if (vaultEnterInputs[0]) {
+            vaultEnterInputs[0].addEventListener('paste', (e) => {
+                const txt = (e.clipboardData ? e.clipboardData.getData('text') : '') || '';
+                const digits = txt.replace(/\D/g, '').slice(0, 6);
+                if (digits.length !== 6) return;
+                e.preventDefault();
+                for (let i = 0; i < 6; i += 1) {
+                    vaultEnterInputs[i].value = digits[i] || '';
+                }
+                vaultEnterInputs[5].focus();
+                maybeSubmitVaultEnter();
+            });
+        }
+        for (const inp of vaultEnterInputs) {
+            inp.addEventListener('input', maybeSubmitVaultEnter);
         }
 
         function renderFolderEmojiOptions() {
@@ -860,6 +887,7 @@
             vaultModeCreateEl.style.display = mode === 'create' ? 'block' : 'none';
             vaultModeEnterEl.style.display = mode === 'enter' ? 'block' : 'none';
             vaultModalTitleEl.textContent = mode === 'create' ? 'Criar PIN' : 'Digite o PIN';
+            vaultModalSaveEl.style.display = mode === 'enter' ? 'none' : 'inline-flex';
 
             clearPinInputs(vaultCreatePinInputs);
             clearPinInputs(vaultCreateConfirmInputs);
@@ -915,6 +943,8 @@
 
         async function submitVaultModal() {
             setVaultModalError('');
+            if (vaultSubmitting) return;
+            vaultSubmitting = true;
             vaultModalSaveEl.disabled = true;
             vaultModalCancelEl.disabled = true;
             vaultModalCloseEl.disabled = true;
@@ -952,10 +982,15 @@
                 closeVaultModal(pin);
             } catch (e) {
                 setVaultModalError(e.message || 'Falha ao validar o PIN.');
+                if (vaultModalMode === 'enter') {
+                    clearPinInputs(vaultEnterInputs);
+                    setTimeout(() => vaultEnterInputs[0].focus(), 0);
+                }
             } finally {
                 vaultModalSaveEl.disabled = false;
                 vaultModalCancelEl.disabled = false;
                 vaultModalCloseEl.disabled = false;
+                vaultSubmitting = false;
             }
         }
 
