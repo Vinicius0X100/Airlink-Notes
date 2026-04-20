@@ -21,14 +21,14 @@ class FolderService
     public function createForUser(int $userId, array $data): NoteFolder
     {
         $name = trim((string) $data['name']);
-        $minSort = (int) (NoteFolder::query()->where('user_id', $userId)->min('sort_order') ?? 0);
+        $maxSort = (int) (NoteFolder::query()->where('user_id', $userId)->max('sort_order') ?? 0);
 
         return NoteFolder::query()->create([
             'user_id' => $userId,
             'name' => $name,
             'icon_emoji' => array_key_exists('icon_emoji', $data) ? (string) ($data['icon_emoji'] ?? '') : null,
             'color' => array_key_exists('color', $data) && $data['color'] ? strtoupper((string) $data['color']) : null,
-            'sort_order' => $minSort - 1,
+            'sort_order' => $maxSort + 1,
         ]);
     }
 

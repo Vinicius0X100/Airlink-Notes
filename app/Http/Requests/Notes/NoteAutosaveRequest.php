@@ -24,6 +24,7 @@ class NoteAutosaveRequest extends FormRequest
     {
         return [
             'content' => ['present', 'nullable', 'string'],
+            'title' => ['sometimes', 'nullable', 'string', 'max:255'],
         ];
     }
 }

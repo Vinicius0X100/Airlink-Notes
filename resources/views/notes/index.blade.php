@@ -39,7 +39,7 @@
         .list-item.drop-target { background: rgba(0, 113, 227, 0.14); border-color: rgba(0, 113, 227, 0.22); outline: 2px solid rgba(0, 113, 227, 0.18); }
         .list-section { padding: 10px 10px 6px; display: flex; align-items: center; gap: 10px; color: rgba(29, 29, 31, 0.55); font-size: 12px; font-weight: 780; letter-spacing: 0.06em; text-transform: uppercase; }
         .list-section:after { content: ""; height: 1px; flex: 1; background: rgba(0, 0, 0, 0.08); }
-        .pin-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid transparent; background: transparent; opacity: 0; transition: opacity 120ms ease, background 140ms ease, border-color 140ms ease; }
+        .pin-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid transparent; background: transparent; opacity: 0.35; color: rgba(29, 29, 31, 0.72); transition: opacity 120ms ease, background 140ms ease, border-color 140ms ease; }
         .pin-btn .mi { width: 16px; height: 16px; }
         .list-item:hover .pin-btn { opacity: 1; }
         .pin-btn:hover { background: rgba(0, 0, 0, 0.04); }
@@ -68,6 +68,16 @@
         .editor-body pre { background: rgba(0, 0, 0, 0.04); padding: 12px 12px; border-radius: 14px; overflow: auto; }
         .editor-body code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.95em; }
         .editor-body mark { background: rgba(255, 214, 10, 0.45); padding: 0 2px; border-radius: 4px; }
+        .editor-body mark[data-hl="yellow"] { background: rgba(255, 214, 10, 0.45); }
+        .editor-body mark[data-hl="orange"] { background: rgba(255, 149, 0, 0.35); }
+        .editor-body mark[data-hl="green"] { background: rgba(52, 199, 89, 0.30); }
+        .editor-body mark[data-hl="blue"] { background: rgba(0, 113, 227, 0.22); }
+        .editor-body mark[data-hl="purple"] { background: rgba(175, 82, 222, 0.26); }
+        .editor-body mark[data-hl="pink"] { background: rgba(255, 45, 85, 0.20); }
+        .editor-body mark[data-hl="gray"] { background: rgba(142, 142, 147, 0.22); }
+        .hl-pop { position: fixed; z-index: 80; display: none; gap: 8px; padding: 10px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.10); background: rgba(255,255,255,0.92); backdrop-filter: blur(18px); }
+        .hl-chip { width: 18px; height: 18px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.12); padding: 0; background: transparent; }
+        .hl-chip[aria-selected="true"] { border-color: rgba(0, 113, 227, 0.55); outline: 2px solid rgba(0, 113, 227, 0.18); outline-offset: 2px; }
         .editor [contenteditable="true"][data-placeholder]:empty:before { content: attr(data-placeholder); color: rgba(29, 29, 31, 0.42); }
         .editor-body span[data-font="serif"] { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; }
         .editor-body span[data-font="mono"] { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
@@ -198,6 +208,18 @@
                 </div>
 
                 <div class="toolbar">
+                    <button class="tool" type="button" data-cmd="undo" disabled title="Desfazer" aria-label="Desfazer">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 14 4 9l5-5"></path>
+                            <path d="M20 20a8 8 0 0 0-16-6"></path>
+                        </svg>
+                    </button>
+                    <button class="tool" type="button" data-cmd="redo" disabled title="Refazer" aria-label="Refazer">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m15 4 5 5-5 5"></path>
+                            <path d="M4 20a8 8 0 0 1 16-6"></path>
+                        </svg>
+                    </button>
                     <button class="tool" type="button" data-cmd="bold" disabled>
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M6 4h8a4 4 0 0 1 0 8H6z"></path><path d="M6 12h9a4 4 0 0 1 0 8H6z"></path>
@@ -360,6 +382,7 @@
                         <input id="folder-color-input" type="color" value="#0071E3">
                         <div style="height:14px;"></div>
                         <label>Emoji</label>
+                        <input id="folder-emoji-input" type="text" maxlength="16" autocomplete="off" placeholder="😀">
                         <div id="folder-emoji-grid" class="emoji-grid"></div>
                         <div class="error" id="folder-color-error" style="display:none; margin-top:10px;"></div>
                     </div>
@@ -387,6 +410,26 @@
                 <div class="modal-actions">
                     <button id="delete-note-cancel" class="modal-btn" type="button">Cancelar</button>
                     <button id="delete-note-confirm" class="modal-btn" data-variant="danger" type="button">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-folder-modal" class="modal-overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-folder-title">
+            <div class="modal-head">
+                <div id="delete-folder-title" class="modal-title">Excluir pasta</div>
+                <button id="delete-folder-close" class="icon-btn" type="button" aria-label="Fechar">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path><path d="M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="delete-folder-text" class="muted">—</div>
+                <div class="modal-actions">
+                    <button id="delete-folder-cancel" class="modal-btn" type="button">Cancelar</button>
+                    <button id="delete-folder-confirm" class="modal-btn" data-variant="danger" type="button">Excluir</button>
                 </div>
             </div>
         </div>
@@ -454,6 +497,7 @@
     </div>
 
     <div id="ctx" class="ctx" aria-hidden="true"></div>
+    <div id="hl-pop" class="hl-pop" aria-hidden="true"></div>
 
     <script>
         const folderListEl = document.getElementById('folder-list');
@@ -502,6 +546,7 @@
         const folderColorRowEl = document.getElementById('folder-color-row');
         const folderPreviewIconEl = document.getElementById('folder-preview-icon');
         const folderPreviewNameEl = document.getElementById('folder-preview-name');
+        const folderEmojiInputEl = document.getElementById('folder-emoji-input');
         const folderEmojiGridEl = document.getElementById('folder-emoji-grid');
         const folderColorErrorEl = document.getElementById('folder-color-error');
 
@@ -523,6 +568,11 @@
         const deleteNoteCloseEl = document.getElementById('delete-note-close');
         const deleteNoteCancelEl = document.getElementById('delete-note-cancel');
         const deleteNoteConfirmEl = document.getElementById('delete-note-confirm');
+        const deleteFolderModalEl = document.getElementById('delete-folder-modal');
+        const deleteFolderCloseEl = document.getElementById('delete-folder-close');
+        const deleteFolderCancelEl = document.getElementById('delete-folder-cancel');
+        const deleteFolderConfirmEl = document.getElementById('delete-folder-confirm');
+        const deleteFolderTextEl = document.getElementById('delete-folder-text');
 
         const ctxEl = document.getElementById('ctx');
 
@@ -554,6 +604,52 @@
         let selectedTagForModalNoteId = null;
         let selectedTagIdForModal = null;
 
+        const hlPopEl = document.getElementById('hl-pop');
+        const HIGHLIGHT_COLORS = [
+            { key: 'yellow', color: '#FFD60A' },
+            { key: 'orange', color: '#FF9500' },
+            { key: 'green', color: '#34C759' },
+            { key: 'blue', color: '#0071E3' },
+            { key: 'purple', color: '#AF52DE' },
+            { key: 'pink', color: '#FF2D55' },
+            { key: 'gray', color: '#8E8E93' },
+        ];
+
+        function openHighlightPopover(anchorEl) {
+            if (!hlPopEl) return;
+            hlPopEl.innerHTML = '';
+            for (const item of HIGHLIGHT_COLORS) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'hl-chip';
+                btn.style.background = item.color;
+                btn.setAttribute('aria-label', 'Marca-texto ' + item.key);
+                btn.setAttribute('aria-selected', 'false');
+                btn.addEventListener('click', () => {
+                    bodyEl.focus();
+                    wrapSelection('mark', { 'data-hl': item.key });
+                    closeHighlightPopover();
+                    scheduleAutosave();
+                });
+                hlPopEl.appendChild(btn);
+            }
+
+            const rect = anchorEl.getBoundingClientRect();
+            const popRect = { width: 240, height: 48 };
+            const left = Math.max(10, Math.min(rect.left, window.innerWidth - popRect.width - 10));
+            const top = Math.max(10, Math.min(rect.bottom + 8, window.innerHeight - popRect.height - 10));
+            hlPopEl.style.left = left + 'px';
+            hlPopEl.style.top = top + 'px';
+            hlPopEl.style.display = 'flex';
+            hlPopEl.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeHighlightPopover() {
+            if (!hlPopEl) return;
+            hlPopEl.style.display = 'none';
+            hlPopEl.setAttribute('aria-hidden', 'true');
+        }
+
         let draggingNoteId = null;
         let orderDirty = false;
         let reorderRaf = 0;
@@ -570,6 +666,7 @@
         let pendingSave = false;
         let lastInputAt = 0;
         let lastSavedContent = null;
+        let lastSavedTitle = null;
 
         let folderModalMode = 'create';
         let folderModalFolderId = null;
@@ -577,6 +674,8 @@
         let view = 'notes';
         let hiddenNotes = [];
         let selectedHiddenId = null;
+        let trashNotes = [];
+        let selectedTrashId = null;
 
         let vaultHasPin = null;
         let vaultPin = null;
@@ -588,6 +687,8 @@
 
         let deleteNoteResolve = null;
         let deletingNoteId = null;
+        let deleteFolderResolve = null;
+        let deletingFolderId = null;
 
         const FOLDER_EMOJIS = ['📁', '📂', '🗂️', '📌', '⭐', '🔥', '🧠', '💼', '🏢', '🛠️', '📚', '🧾', '🧪', '🎯', '🚀', '💡'];
         let selectedFolderEmoji = null;
@@ -733,6 +834,26 @@
             if (resolve) resolve(ok);
         }
 
+        function openDeleteFolderModal(folder) {
+            deletingFolderId = folder ? folder.id : null;
+            const name = folder && folder.name ? String(folder.name) : 'esta pasta';
+            deleteFolderTextEl.textContent = `Excluir a pasta "${name}"? As notas dentro serão movidas para "Todas as notas".`;
+            deleteFolderModalEl.style.display = 'flex';
+            deleteFolderModalEl.setAttribute('aria-hidden', 'false');
+            return new Promise((resolve) => {
+                deleteFolderResolve = resolve;
+            });
+        }
+
+        function closeDeleteFolderModal(ok = false) {
+            deleteFolderModalEl.style.display = 'none';
+            deleteFolderModalEl.setAttribute('aria-hidden', 'true');
+            const resolve = deleteFolderResolve;
+            deleteFolderResolve = null;
+            deletingFolderId = null;
+            if (resolve) resolve(ok);
+        }
+
         function setDropTarget(el) {
             if (dropTargetEl && dropTargetEl !== el) {
                 dropTargetEl.classList.remove('drop-target');
@@ -794,6 +915,7 @@
             folderColorFolder = folder || null;
             folderColorInputEl.value = (folder && folder.color) ? String(folder.color) : '#0071E3';
             selectedFolderEmoji = (folder && folder.icon_emoji) ? String(folder.icon_emoji) : '';
+            folderEmojiInputEl.value = selectedFolderEmoji || '';
             renderFolderEmojiOptions();
             renderFolderColorRow();
             renderFolderPreview();
@@ -892,6 +1014,10 @@
 
         function getSelectedHidden() {
             return hiddenNotes.find(n => n.id === selectedHiddenId) || null;
+        }
+
+        function getSelectedTrash() {
+            return trashNotes.find(n => n.id === selectedTrashId) || null;
         }
 
         function setFolderModalError(msg) {
@@ -1330,6 +1456,26 @@
             `;
             hiddenBtn.addEventListener('click', openHidden);
             folderListEl.appendChild(hiddenBtn);
+
+            const trashBtn = document.createElement('button');
+            trashBtn.type = 'button';
+            trashBtn.className = 'list-item';
+            trashBtn.setAttribute('aria-selected', 'false');
+            trashBtn.innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M8 6V4h8v2"></path>
+                    <path d="M19 6l-1 14H6L5 6"></path>
+                    <path d="M12 11v6"></path>
+                    <path d="M9 11v6"></path>
+                    <path d="M15 11v6"></path>
+                </svg>
+                <div class="list-item-col">
+                    <div class="list-item-title">Apagadas</div>
+                </div>
+            `;
+            trashBtn.addEventListener('click', openRecentlyDeleted);
+            folderListEl.appendChild(trashBtn);
         }
 
         function renderNotes() {
@@ -1337,8 +1483,8 @@
             const scrollTop = noteListEl.scrollTop;
             noteListEl.innerHTML = '';
 
-            const list = view === 'hidden' ? hiddenNotes : notes;
-            const selectedId = view === 'hidden' ? selectedHiddenId : selectedNoteId;
+            const list = view === 'hidden' ? hiddenNotes : (view === 'trash' ? trashNotes : notes);
+            const selectedId = view === 'hidden' ? selectedHiddenId : (view === 'trash' ? selectedTrashId : selectedNoteId);
 
             const filtered = list.filter(n => {
                 const title = (n.title || '').toLowerCase();
@@ -1359,10 +1505,13 @@
                     ? (folderNameById.get(n.folder_id) ? `<span class="folder-pill">${escapeHtml(folderNameById.get(n.folder_id))}</span>` : '')
                     : '';
                 const tagPill = view === 'notes' ? tagPillHtml(n.tag_id) : '';
-                const meta = tagPill + folderPill + escapeHtml(formatDate(n.updated_at));
+                const when = view === 'trash' ? n.deleted_at : n.updated_at;
+                const meta = tagPill + folderPill + escapeHtml(formatDate(when));
 
                 const icon = view === 'hidden'
                     ? `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17a2 2 0 0 0 2-2v-2a2 2 0 0 0-4 0v2a2 2 0 0 0 2 2z"></path><path d="M6 11V9a6 6 0 1 1 12 0v2"></path><path d="M5 11h14v10H5z"></path></svg>`
+                    : (view === 'trash'
+                        ? `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>`
                     : `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"></path><path d="M8 8h8"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg>`;
 
                 const pinBtn = view === 'notes'
@@ -1375,9 +1524,27 @@
                         </button>`
                     : '';
 
+                const trashBtns = view === 'trash'
+                    ? `<div class="list-item-end">
+                            <button class="pin-btn" type="button" data-trash-action="restore" aria-label="Restaurar">
+                                <svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+                                    <path d="M3 3v6h6"></path>
+                                </svg>
+                            </button>
+                            <button class="pin-btn" type="button" data-trash-action="delete" aria-label="Excluir definitivamente">
+                                <svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M8 6V4h8v2"></path>
+                                    <path d="M19 6l-1 14H6L5 6"></path>
+                                </svg>
+                            </button>
+                        </div>`
+                    : '';
+
                 const end = view === 'notes'
                     ? `<div class="list-item-end">${pinBtn}</div>`
-                    : '';
+                    : (view === 'trash' ? trashBtns : '');
 
                 btn.innerHTML = `
                     ${icon}
@@ -1391,6 +1558,22 @@
 
                 if (view === 'hidden') {
                     btn.addEventListener('click', () => selectHidden(n.id));
+                    return btn;
+                }
+
+                if (view === 'trash') {
+                    btn.addEventListener('click', async (e) => {
+                        const action = e.target && e.target.closest ? e.target.closest('[data-trash-action]') : null;
+                        if (action) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const act = action.getAttribute('data-trash-action');
+                            if (act === 'restore') await restoreTrashItem(n.id);
+                            if (act === 'delete') await deleteTrashItem(n.id);
+                            return;
+                        }
+                        selectTrash(n.id);
+                    });
                     return btn;
                 }
 
@@ -1481,6 +1664,30 @@
                 titleEl.textContent = parsed.title || (n.title || '');
                 bodyEl.innerHTML = parsed.body || '';
                 setStatus(`Atualizado em ${formatDate(n.updated_at)}`);
+                emptyEl.style.display = 'none';
+                return;
+            }
+
+            if (view === 'trash') {
+                const n = getSelectedTrash();
+                titleEl.textContent = '';
+                bodyEl.innerHTML = '';
+                metaEl.textContent = 'Apagadas';
+                tagIndicatorEl.style.display = 'none';
+                lastSavedVersion = null;
+                setEditorEnabled(false);
+                btnDeleteNote.disabled = true;
+
+                if (!n) {
+                    setStatus('Selecione uma nota apagada.');
+                    emptyEl.style.display = 'none';
+                    return;
+                }
+
+                const parsed = parseContent(n.content || '');
+                titleEl.textContent = parsed.title || (n.title || '');
+                bodyEl.innerHTML = parsed.body || '';
+                setStatus(`Apagada em ${formatDate(n.deleted_at)}`);
                 emptyEl.style.display = 'none';
                 return;
             }
@@ -1599,6 +1806,8 @@
             view = 'notes';
             hiddenNotes = [];
             selectedHiddenId = null;
+            trashNotes = [];
+            selectedTrashId = null;
             btnNewNote.disabled = false;
             const qs = new URLSearchParams();
             qs.set('per_page', '200');
@@ -1617,6 +1826,7 @@
         async function selectFolder(folderId) {
             view = 'notes';
             selectedHiddenId = null;
+            selectedTrashId = null;
             btnNewNote.disabled = false;
             selectedFolderId = folderId;
             selectedNoteId = null;
@@ -1627,6 +1837,7 @@
         async function selectNote(noteId) {
             view = 'notes';
             selectedHiddenId = null;
+            selectedTrashId = null;
             btnNewNote.disabled = false;
             selectedNoteId = noteId;
             renderNotes();
@@ -1649,7 +1860,20 @@
             selectedHiddenId = hiddenId;
             selectedNoteId = null;
             selectedFolderId = null;
+            selectedTrashId = null;
             btnNewNote.disabled = true;
+            renderNotes();
+            renderEditor();
+        }
+
+        function selectTrash(trashId) {
+            view = 'trash';
+            selectedTrashId = trashId;
+            selectedHiddenId = null;
+            selectedNoteId = null;
+            selectedFolderId = null;
+            btnNewNote.disabled = true;
+            renderFolders();
             renderNotes();
             renderEditor();
         }
@@ -1675,6 +1899,57 @@
                 vaultPin = null;
                 vaultPinSetAt = 0;
                 setError(e.message || 'Falha ao abrir as notas ocultas.');
+            }
+        }
+
+        async function openRecentlyDeleted() {
+            closeCtx();
+            try {
+                const payload = await window.Airlink.api('/recently-deleted');
+                trashNotes = payload && payload.data ? payload.data : [];
+                view = 'trash';
+                selectedTrashId = null;
+                selectedHiddenId = null;
+                selectedNoteId = null;
+                selectedFolderId = null;
+                btnNewNote.disabled = true;
+                renderFolders();
+                renderNotes();
+                renderEditor();
+                setStatus('Apagadas recentemente');
+            } catch (e) {
+                setError(e.message || 'Falha ao carregar apagadas recentemente.');
+            }
+        }
+
+        async function restoreTrashItem(trashId) {
+            setError('');
+            try {
+                const payload = await window.Airlink.api('/recently-deleted/' + trashId + '/restore', { method: 'POST' });
+                trashNotes = trashNotes.filter(x => x.id !== trashId);
+                selectedTrashId = selectedTrashId === trashId ? null : selectedTrashId;
+                if (payload && payload.note) {
+                    notesById.set(payload.note.id, payload.note);
+                }
+                renderNotes();
+                renderEditor();
+            } catch (e) {
+                setError(e.message || 'Falha ao restaurar.');
+            }
+        }
+
+        async function deleteTrashItem(trashId) {
+            const ok = await openDeleteNoteModal(trashId);
+            if (!ok) return;
+            setError('');
+            try {
+                await window.Airlink.api('/recently-deleted/' + trashId, { method: 'DELETE' });
+                trashNotes = trashNotes.filter(x => x.id !== trashId);
+                selectedTrashId = selectedTrashId === trashId ? null : selectedTrashId;
+                renderNotes();
+                renderEditor();
+            } catch (e) {
+                setError(e.message || 'Falha ao excluir.');
             }
         }
 
@@ -1825,7 +2100,7 @@
             const f = getSelectedFolder();
             if (!f) return;
             setError('');
-            const ok = confirm(`Excluir a pasta "${f.name}"? As notas dentro serão movidas para "Todas as notas".`);
+            const ok = await openDeleteFolderModal(f);
             if (!ok) return;
             btnDeleteFolder.disabled = true;
             try {
@@ -1976,7 +2251,7 @@
                 if (!n) return;
             }
 
-            if (lastSavedContent !== null && content === lastSavedContent) return;
+            if (lastSavedContent !== null && lastSavedTitle !== null && content === lastSavedContent && title === lastSavedTitle) return;
             if (saveInFlight) {
                 pendingSave = true;
                 return;
@@ -1988,7 +2263,7 @@
 
             try {
                 setStatus('Salvando…');
-                const payload = await window.Airlink.api(`/notes/${n.id}/autosave`, { method: 'POST', body: { content: snapshotContent } });
+                const payload = await window.Airlink.api(`/notes/${n.id}/autosave`, { method: 'POST', body: { content: snapshotContent, title: title || null } });
                 n.content = snapshotContent;
                 n.title = title || null;
                 n.version = payload.version;
@@ -1999,6 +2274,7 @@
                 const active = document.activeElement === titleEl || document.activeElement === bodyEl;
                 if (!active) renderNotes();
                 lastSavedContent = snapshotContent;
+                lastSavedTitle = title;
             } catch (e) {
                 setStatus('Falha ao salvar.');
                 setError(e.message || 'Falha no autosave.');
@@ -2062,6 +2338,7 @@
             if (folderColorModalEl.getAttribute('aria-hidden') === 'false') closeFolderColorModal();
             if (tagModalEl.getAttribute('aria-hidden') === 'false') closeTagModal();
             if (deleteNoteModalEl.getAttribute('aria-hidden') === 'false') closeDeleteNoteModal(false);
+            if (deleteFolderModalEl.getAttribute('aria-hidden') === 'false') closeDeleteFolderModal(false);
             closeCtx();
         });
 
@@ -2088,6 +2365,11 @@
             renderFolderColorRow();
             renderFolderPreview();
         });
+        folderEmojiInputEl.addEventListener('input', () => {
+            selectedFolderEmoji = (folderEmojiInputEl.value || '').trim();
+            renderFolderEmojiOptions();
+            renderFolderPreview();
+        });
 
         tagModalEl.addEventListener('click', (e) => {
             if (e.target === tagModalEl) closeTagModal();
@@ -2102,6 +2384,13 @@
         deleteNoteCloseEl.addEventListener('click', () => closeDeleteNoteModal(false));
         deleteNoteCancelEl.addEventListener('click', () => closeDeleteNoteModal(false));
         deleteNoteConfirmEl.addEventListener('click', () => closeDeleteNoteModal(true));
+
+        deleteFolderModalEl.addEventListener('click', (e) => {
+            if (e.target === deleteFolderModalEl) closeDeleteFolderModal(false);
+        });
+        deleteFolderCloseEl.addEventListener('click', () => closeDeleteFolderModal(false));
+        deleteFolderCancelEl.addEventListener('click', () => closeDeleteFolderModal(false));
+        deleteFolderConfirmEl.addEventListener('click', () => closeDeleteFolderModal(true));
 
         onboardingCloseEl.addEventListener('click', () => {});
         onboardingNextEl.addEventListener('click', () => {
@@ -2171,9 +2460,17 @@
             const block = btn.getAttribute('data-block');
             if (cmd) applyCmd(cmd);
             if (block) applyBlock(block);
-            if (wrap === 'mark') { bodyEl.focus(); wrapSelection('mark'); }
+            if (wrap === 'mark') { openHighlightPopover(btn); return; }
             scheduleAutosave();
             updateToolbarState();
+        });
+
+        document.addEventListener('mousedown', (e) => {
+            if (!hlPopEl || hlPopEl.getAttribute('aria-hidden') === 'true') return;
+            if (hlPopEl.contains(e.target)) return;
+            const markBtn = toolbarEl.querySelector('button[data-wrap="mark"]');
+            if (markBtn && markBtn.contains(e.target)) return;
+            closeHighlightPopover();
         });
 
         fontSelectEl.addEventListener('change', () => {
@@ -2191,6 +2488,7 @@
             if (folderColorModalEl.getAttribute('aria-hidden') === 'false') return;
             if (tagModalEl.getAttribute('aria-hidden') === 'false') return;
             if (onboardingEl.getAttribute('aria-hidden') === 'false') return;
+            if (hlPopEl && hlPopEl.getAttribute('aria-hidden') === 'false') closeHighlightPopover();
             if (e.metaKey || e.ctrlKey || e.altKey) return;
             if (e.key.length !== 1) return;
             const tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toLowerCase() : '';

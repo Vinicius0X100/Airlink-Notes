@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FolderController;
 use App\Http\Controllers\Api\NoteController;
+use App\Http\Controllers\Api\RecentlyDeletedController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\VaultController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/folders/reorder', [FolderController::class, 'reorder']);
     Route::put('/folders/{folder}', [FolderController::class, 'update']);
     Route::delete('/folders/{folder}', [FolderController::class, 'destroy']);
+
+    Route::get('/recently-deleted', [RecentlyDeletedController::class, 'index']);
+    Route::post('/recently-deleted/{item}/restore', [RecentlyDeletedController::class, 'restore']);
+    Route::delete('/recently-deleted/{item}', [RecentlyDeletedController::class, 'destroy']);
 
     Route::get('/tags', [TagController::class, 'index']);
     Route::post('/tags', [TagController::class, 'store']);

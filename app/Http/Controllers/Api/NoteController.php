@@ -109,12 +109,14 @@ class NoteController extends Controller
     {
         $userId = (int) $request->user()->id;
         $content = $request->validated('content');
-        $note = $noteService->autosaveForUser($userId, $note, (string) ($content ?? ''));
+        $title = $request->validated('title');
+        $note = $noteService->autosaveForUser($userId, $note, (string) ($content ?? ''), $title);
 
         return response()->json([
             'id' => $note->id,
             'version' => $note->version,
             'updated_at' => $note->updated_at,
+            'title' => $note->title,
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Services\Notes;
 
 use App\Models\Note;
+use App\Models\RecentlyDeletedNote;
 use App\Services\Content\HtmlSanitizerService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -35,8 +36,8 @@ class NoteService
             $title = $this->htmlSanitizer->extractTitle($content);
         }
 
-        $minSort = (int) (Note::query()->forUser($userId)->min('sort_order') ?? 0);
-        $sortOrder = $minSort - 1;
+        $maxSort = (int) (Note::query()->forUser($userId)->max('sort_order') ?? 0);
+        $sortOrder = $maxSort + 1;
 
         return Note::query()->create([
             'user_id' => $userId,
@@ -86,14 +87,15 @@ class NoteService
         return $note->fresh();
     }
 
-    public function autosaveForUser(int $userId, Note $note, string $content): Note
+    public function autosaveForUser(int $userId, Note $note, string $content, ?string $title = null): Note
     {
         if ($note->user_id !== $userId) {
             abort(404);
         }
 
         $content = $this->htmlSanitizer->sanitize($content);
-        $title = $note->title;
+        $title = $title !== null ? trim((string) $title) : $note->title;
+        $title = $title !== '' ? $title : null;
 
         if ($title === null || $title === '') {
             $derived = $this->htmlSanitizer->extractTitle($content);
@@ -113,10 +115,25 @@ class NoteService
         return $note->fresh();
     }
 
-    public function deleteForUser(int $userId, Note $note): void
+    public function deleteForUser(int $userId, Note $note, bool $storeInRecentlyDeleted = true): void
     {
         if ($note->user_id !== $userId) {
             abort(404);
+        }
+
+        if ($storeInRecentlyDeleted) {
+            RecentlyDeletedNote::query()->create([
+                'user_id' => $userId,
+                'original_note_id' => $note->id,
+                'folder_id' => $note->folder_id,
+                'tag_id' => $note->tag_id,
+                'title' => $note->title,
+                'content' => $note->content,
+                'is_pinned' => (bool) $note->is_pinned,
+                'is_archived' => (bool) $note->is_archived,
+                'deleted_at' => now(),
+                'expires_at' => now()->addDays(30),
+            ]);
         }
 
         $note->delete();

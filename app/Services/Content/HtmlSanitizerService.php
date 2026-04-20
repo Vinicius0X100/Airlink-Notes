@@ -31,6 +31,16 @@ class HtmlSanitizerService
         'span',
     ];
 
+    private array $allowedHighlight = [
+        'yellow',
+        'orange',
+        'green',
+        'blue',
+        'purple',
+        'pink',
+        'gray',
+    ];
+
     public function sanitize(string $html): string
     {
         $html = trim($html);
@@ -92,6 +102,17 @@ class HtmlSanitizerService
 
                 if ($keepFont !== null) {
                     $node->setAttribute('data-font', $keepFont);
+                }
+            } elseif ($tag === 'mark') {
+                $dataHl = $node->getAttribute('data-hl');
+                $keepHl = in_array($dataHl, $this->allowedHighlight, true) ? $dataHl : null;
+
+                while ($node->attributes->length > 0) {
+                    $node->removeAttributeNode($node->attributes->item(0));
+                }
+
+                if ($keepHl !== null) {
+                    $node->setAttribute('data-hl', $keepHl);
                 }
             } else {
                 while ($node->attributes->length > 0) {

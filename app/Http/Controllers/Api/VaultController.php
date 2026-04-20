@@ -159,7 +159,7 @@ class VaultController extends Controller
                 'updated_at' => now(),
             ]);
 
-            $noteService->deleteForUser($userId, $note);
+            $noteService->deleteForUser($userId, $note, false);
         });
 
         return response()->json(['ok' => true]);
