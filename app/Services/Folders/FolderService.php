@@ -5,6 +5,7 @@ namespace App\Services\Folders;
 use App\Models\Note;
 use App\Models\NoteFolder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 class FolderService
@@ -23,13 +24,21 @@ class FolderService
         $name = trim((string) $data['name']);
         $maxSort = (int) (NoteFolder::query()->where('user_id', $userId)->max('sort_order') ?? 0);
 
-        return NoteFolder::query()->create([
-            'user_id' => $userId,
-            'name' => $name,
-            'icon_emoji' => array_key_exists('icon_emoji', $data) ? (string) ($data['icon_emoji'] ?? '') : null,
-            'color' => array_key_exists('color', $data) && $data['color'] ? strtoupper((string) $data['color']) : null,
-            'sort_order' => $maxSort + 1,
-        ]);
+        try {
+            return NoteFolder::query()->create([
+                'user_id' => $userId,
+                'name' => $name,
+                'icon_emoji' => array_key_exists('icon_emoji', $data) ? (string) ($data['icon_emoji'] ?? '') : null,
+                'color' => array_key_exists('color', $data) && $data['color'] ? strtoupper((string) $data['color']) : null,
+                'sort_order' => $maxSort + 1,
+            ]);
+        } catch (QueryException $e) {
+            if ($this->isDuplicateKey($e)) {
+                abort(422, 'Já existe uma pasta com esse nome.');
+            }
+
+            throw $e;
+        }
     }
 
     public function renameForUser(int $userId, NoteFolder $folder, array $data): NoteFolder
@@ -57,7 +66,15 @@ class FolderService
         }
 
         if ($update !== []) {
-            $folder->update($update);
+            try {
+                $folder->update($update);
+            } catch (QueryException $e) {
+                if ($this->isDuplicateKey($e)) {
+                    abort(422, 'Já existe uma pasta com esse nome.');
+                }
+
+                throw $e;
+            }
         }
 
         return $folder->fresh();
@@ -101,5 +118,13 @@ class FolderService
                     ->update(['sort_order' => $i]);
             }
         });
+    }
+
+    private function isDuplicateKey(QueryException $e): bool
+    {
+        $sqlState = $e->errorInfo[0] ?? null;
+        $driverCode = $e->errorInfo[1] ?? null;
+
+        return $sqlState === '23000' && (int) $driverCode === 1062;
     }
 }
