@@ -2687,9 +2687,15 @@
                     onboardingEl.setAttribute('aria-hidden', 'false');
                 }
                 window.addEventListener('airlink:tags-updated', () => { loadTags().catch(() => {}); });
-            } catch (_) {
-                window.Airlink.clearToken();
-                location.href = '/login';
+            } catch (e) {
+                if (e && (e.status === 401 || e.status === 419)) {
+                    window.Airlink.clearToken();
+                    location.href = '/login';
+                    return;
+                }
+
+                setError((e && e.message) ? e.message : 'Falha ao carregar suas notas.');
+                setStatus('Erro');
             }
         })();
     </script>

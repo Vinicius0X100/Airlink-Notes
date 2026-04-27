@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Throwable;
 
 return new class extends Migration
 {
@@ -18,7 +17,7 @@ return new class extends Migration
         }
 
         if (! Schema::hasColumn('note_folders', 'name_unique')) {
-            DB::statement("ALTER TABLE `note_folders` ADD COLUMN `name_unique` VARCHAR(191) GENERATED ALWAYS AS (CASE WHEN `deleted_at` IS NULL THEN `name` ELSE CONCAT(`name`, '#', `id`) END) STORED");
+            DB::statement('ALTER TABLE `note_folders` ADD COLUMN `name_unique` VARCHAR(191) GENERATED ALWAYS AS (CASE WHEN `deleted_at` IS NULL THEN `name` ELSE NULL END) STORED');
         }
 
         try {

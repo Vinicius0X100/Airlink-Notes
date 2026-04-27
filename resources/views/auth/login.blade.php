@@ -175,23 +175,38 @@
 
         async function restoreIfPossible() {
             try {
-                if (window.Airlink.getToken()) {
-                    await window.Airlink.api('/me');
-                    location.href = '/notes';
-                    return;
+                const existingToken = window.Airlink.getToken();
+                if (existingToken) {
+                    try {
+                        await window.Airlink.api('/me');
+                        location.href = '/notes';
+                        return;
+                    } catch (e) {
+                        if (e && (e.status === 401 || e.status === 419)) {
+                            window.Airlink.clearToken();
+                        } else {
+                            window.Airlink.clearToken();
+                            return;
+                        }
+                    }
                 }
 
-                if (!document.cookie.includes('airlink_notes_uid=')) {
-                    return;
-                }
+                if (!document.cookie.includes('airlink_notes_uid=')) return;
 
                 const payload = await window.Airlink.api('/session/restore', { method: 'POST' });
                 if (payload && payload.ok && payload.token) {
                     window.Airlink.setToken(payload.token);
-                    location.href = '/notes';
+                    try {
+                        await window.Airlink.api('/me');
+                        location.href = '/notes';
+                    } catch (e) {
+                        window.Airlink.clearToken();
+                        document.cookie = 'airlink_notes_uid=; Max-Age=0; Path=/';
+                    }
                 }
             } catch (e) {
-                if (e && e.status === 401) {
+                if (e && (e.status === 401 || e.status === 419)) {
+                    window.Airlink.clearToken();
                     document.cookie = 'airlink_notes_uid=; Max-Age=0; Path=/';
                 }
             }
